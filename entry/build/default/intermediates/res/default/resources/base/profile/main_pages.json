@@ -1,0 +1,13 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/password/PasswordListPage",
+    "pages/password/PasswordDetailPage",
+    "pages/password/PasswordGeneratorPage",
+    "pages/password/AppLockVerifyPage",
+    "pages/weight/WeightListPage",
+    "pages/weight/WeightDetailPage",
+    "pages/weight/WeightStatisticsPage",
+    "pages/settings/SettingsPage"
+  ]
+}

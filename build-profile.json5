@@ -1,0 +1,56 @@
+{
+  "app": {
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "storeFile": "E:/project/hm/utools/cert/muyuan.p12",
+          "storePassword": "0000001B8D652381F37FCCF00405195CAD54CBFFD2B3CE16CFE0F86994D33FC4A6B3C0CAC15A7ECB42676F",
+          "keyAlias": "muyuan",
+          "keyPassword": "0000001B043BC68815E8F928EAA56A809D9070709D8C22D8F3B556C3DB9BBEDC9ECFA8592AB266E9898543",
+          "signAlg": "SHA256withECDSA",
+          "profile": "E:/project/hm/utools/cert/木原Release (2).p7b",
+          "certpath": "E:/project/hm/utools/cert/木原 (2).cer"
+        }
+      }
+    ],
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "targetSdkVersion": "6.1.0(23)",
+        "compatibleSdkVersion": "6.0.0(20)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": {
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug",
+      },
+      {
+        "name": "release"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    }
+  ]
+}
