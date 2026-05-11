@@ -159,6 +159,42 @@ struct WeightDetailPage {
     }
   }
 
+  // 滚轮选择器辅助方法
+  getIntRange(): string[] {
+    const range: string[] = [];
+    for (let i = 20; i <= 200; i++) {
+      range.push(i.toString());
+    }
+    return range;
+  }
+
+  getDecimalRange(): string[] {
+    const range: string[] = [];
+    for (let i = 0; i < 100; i++) {
+      range.push(i.toString().padStart(2, '0'));
+    }
+    return range;
+  }
+
+  getIntPart(): number {
+    const val = parseFloat(this.weight) || 60;
+    return Math.floor(val);
+  }
+
+  getDecimalPart(): number {
+    const val = parseFloat(this.weight) || 60;
+    return Math.round((val - Math.floor(val)) * 100);
+  }
+
+  getIntIndex(): number {
+    const intPart = this.getIntPart();
+    return Math.max(0, Math.min(180, intPart - 20));
+  }
+
+  getDecimalIndex(): number {
+    return this.getDecimalPart();
+  }
+
   async saveWeight() {
     const displayWeight = parseFloat(this.weight);
     const kgWeight = this.useKg ? displayWeight : displayWeight / 2;
@@ -282,18 +318,57 @@ struct WeightDetailPage {
               .width('100%')
               .justifyContent(FlexAlign.SpaceBetween)
 
+              // 滚轮选择器（整数+小数部分）
+              Row({ space: 4 }) {
+                // 整数部分滚轮
+                TextPicker({ range: this.getIntRange(), selected: this.getIntIndex() })
+                  .layoutWeight(1)
+                  .height(120)
+                  .onChange((value: string | string[], index: number | number[]) => {
+                    const idx = typeof index === 'number' ? index : index[0];
+                    const intPart = 20 + idx;
+                    const currentDecimal = this.getDecimalPart();
+                    this.weight = `${intPart}.${currentDecimal.toString().padStart(2, '0')}`;
+                    this.updateBMIPreview();
+                  })
+
+                Text('.')
+                  .fontSize(32)
+                  .fontWeight(FontWeight.Bold)
+                  .fontColor('#333333')
+
+                // 小数部分滚轮
+                TextPicker({ range: this.getDecimalRange(), selected: this.getDecimalIndex() })
+                  .layoutWeight(1)
+                  .height(120)
+                  .onChange((value: string | string[], index: number | number[]) => {
+                    const idx = typeof index === 'number' ? index : index[0];
+                    const currentInt = this.getIntPart();
+                    this.weight = `${currentInt}.${idx.toString().padStart(2, '0')}`;
+                    this.updateBMIPreview();
+                  })
+
+                Text(this.useKg ? 'kg' : '斤')
+                  .fontSize(16)
+                  .fontColor('#999999')
+                  .margin({ left: 8 })
+              }
+              .width('100%')
+              .padding({ left: 20, right: 20 })
+
+              // 精确输入框（可切换）
               TextInput({ placeholder: '0', text: this.weight, controller: this.weightController })
                 .type(InputType.Normal)
-                .fontSize(56)
-                .fontWeight(FontWeight.Bold)
+                .fontSize(20)
+                .fontWeight(FontWeight.Medium)
                 .fontColor('#333333')
                 .textAlign(TextAlign.Center)
                 .width('100%')
-                .height(80)
-                .backgroundColor('transparent')
+                .height(48)
+                .backgroundColor('#F5F5F5')
+                .borderRadius(8)
                 .inputFilter('[0-9.]')
                 .onChange((value: string) => {
-                  // 只允许数字和小数点，并确保最多一个小数点
                   let filtered = value.replace(/[^0-9.]/g, '');
                   const parts = filtered.split('.');
                   if (parts.length > 2) {

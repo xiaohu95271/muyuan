@@ -206,8 +206,8 @@
         "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.abilityAccessCtrl.d.ts",
         "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.events.emitter.d.ts",
         "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.security.cryptoFramework.d.ts",
-        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.pasteboard.d.ts",
         "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.data.preferences.d.ts",
+        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.pasteboard.d.ts",
         "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\graphics3d\\SceneResources.d.ts",
         "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\build-tools\\ets-loader\\declarations\\embedded_component.d.ts",
         "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\build-tools\\ets-loader\\declarations\\image.d.ts",
@@ -1594,6 +1594,7 @@
       "children": [],
       "parent": [
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\database\\DatabaseManager.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\Index.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordListPage.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordDetailPage.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordGeneratorPage.ets"
@@ -1605,6 +1606,7 @@
       "children": [],
       "parent": [
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\database\\DatabaseManager.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\Index.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\weight\\WeightListPage.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\weight\\WeightDetailPage.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\weight\\WeightStatisticsPage.ets",
@@ -1699,16 +1701,6 @@
       ],
       "error": false
     },
-    "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\Index.ets": {
-      "mtimeMs": 1778391777446.5496,
-      "children": [
-        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\constants\\AppConstants.ets",
-        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\database\\DatabaseManager.ets",
-        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\utils\\EventUtil.ets"
-      ],
-      "parent": [],
-      "error": false
-    },
     "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\utils\\CryptoUtil.ets": {
       "mtimeMs": 1778391621383.6133,
       "children": [
@@ -1716,6 +1708,7 @@
         "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.buffer.d.ts"
       ],
       "parent": [
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\Index.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordListPage.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordDetailPage.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordGeneratorPage.ets"
@@ -1728,6 +1721,7 @@
         "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.promptAction.d.ts"
       ],
       "parent": [
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\Index.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordListPage.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordDetailPage.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\AppLockVerifyPage.ets",
@@ -1739,19 +1733,14 @@
         28007
       ]
     },
-    "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.pasteboard.d.ts": {
-      "mtimeMs": 1776438060000,
-      "children": [
-        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.base.d.ts",
-        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.app.ability.Want.d.ts",
-        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.multimedia.image.d.ts",
-        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.data.unifiedDataChannel.d.ts"
-      ],
+    "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\utils\\DateUtil.ets": {
+      "mtimeMs": 1778163393719.2595,
+      "children": [],
       "parent": [
-        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordListPage.ets",
-        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordDetailPage.ets",
-        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordGeneratorPage.ets",
-        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\settings\\SettingsPage.ets"
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\Index.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\weight\\WeightListPage.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\weight\\WeightDetailPage.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\weight\\WeightStatisticsPage.ets"
       ],
       "error": false
     },
@@ -1762,6 +1751,7 @@
         "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\application\\BaseContext.d.ts"
       ],
       "parent": [
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\Index.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordListPage.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordDetailPage.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\AppLockVerifyPage.ets",
@@ -1772,17 +1762,36 @@
       ],
       "error": false
     },
-    "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordListPage.ets": {
-      "mtimeMs": 1778392969828.3987,
+    "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.pasteboard.d.ts": {
+      "mtimeMs": 1776438060000,
+      "children": [
+        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.app.ability.Want.d.ts",
+        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.data.unifiedDataChannel.d.ts"
+      ],
+      "parent": [
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\Index.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordListPage.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordDetailPage.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordGeneratorPage.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\settings\\SettingsPage.ets"
+      ],
+      "error": false
+    },
+    "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\Index.ets": {
+      "mtimeMs": 1778422377750.5872,
       "children": [
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\constants\\AppConstants.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\database\\DatabaseManager.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\utils\\EventUtil.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\models\\WeightModel.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\models\\PasswordModel.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\utils\\CryptoUtil.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\utils\\ToastUtil.ets",
-        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\utils\\EventUtil.ets",
-        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.pasteboard.d.ts",
-        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.data.preferences.d.ts"
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\utils\\DateUtil.ets",
+        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.data.preferences.d.ts",
+        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.pasteboard.d.ts"
       ],
       "parent": [],
       "error": false
@@ -1806,8 +1815,23 @@
       ],
       "error": false
     },
+    "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordListPage.ets": {
+      "mtimeMs": 1778408143807.581,
+      "children": [
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\constants\\AppConstants.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\database\\DatabaseManager.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\models\\PasswordModel.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\utils\\CryptoUtil.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\utils\\ToastUtil.ets",
+        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\utils\\EventUtil.ets",
+        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.pasteboard.d.ts",
+        "C:\\Program Files\\Huawei\\DevEco Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.data.preferences.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
     "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\password\\PasswordDetailPage.ets": {
-      "mtimeMs": 1778392745370.1316,
+      "mtimeMs": 1778408061805.0222,
       "children": [
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\constants\\AppConstants.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\database\\DatabaseManager.ets",
@@ -1841,16 +1865,6 @@
       "parent": [],
       "error": false
     },
-    "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\utils\\DateUtil.ets": {
-      "mtimeMs": 1778163393719.2595,
-      "children": [],
-      "parent": [
-        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\weight\\WeightListPage.ets",
-        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\weight\\WeightDetailPage.ets",
-        "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\weight\\WeightStatisticsPage.ets"
-      ],
-      "error": false
-    },
     "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\weight\\WeightListPage.ets": {
       "mtimeMs": 1778392745384.4412,
       "children": [
@@ -1865,7 +1879,7 @@
       "error": false
     },
     "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\weight\\WeightDetailPage.ets": {
-      "mtimeMs": 1778395556103.615,
+      "mtimeMs": 1778408000811.2625,
       "children": [
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\constants\\AppConstants.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\database\\DatabaseManager.ets",
@@ -1879,7 +1893,7 @@
       "error": false
     },
     "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\pages\\weight\\WeightStatisticsPage.ets": {
-      "mtimeMs": 1778393702978.0698,
+      "mtimeMs": 1778407894808.4563,
       "children": [
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\common\\database\\DatabaseManager.ets",
         "E:\\project\\hm\\utools\\entry\\src\\main\\ets\\models\\WeightModel.ets",

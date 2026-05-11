@@ -18,6 +18,8 @@ struct PasswordListPage {
   @State showPasswordIds: Set<number> = new Set();
   @State swipeDeleteId: number = -1;
   @State categories: string[] = ['全部'];
+  @State collapsedCategories: Set<string> = new Set();
+  @State groupedMode: boolean = true;
   private passwordEventId: number = -1;
 
   aboutToAppear() {
@@ -126,6 +128,45 @@ struct PasswordListPage {
     this.showPasswordIds = newSet;
   }
 
+  toggleCategory(category: string): void {
+    const newSet = new Set(this.collapsedCategories);
+    if (newSet.has(category)) {
+      newSet.delete(category);
+    } else {
+      newSet.add(category);
+    }
+    this.collapsedCategories = newSet;
+  }
+
+  getGroupedPasswords(): Map<string, PasswordModel[]> {
+    const groups = new Map<string, PasswordModel[]>();
+    for (const pwd of this.passwordList) {
+      const cat = pwd.category || '其他';
+      if (!groups.has(cat)) {
+        groups.set(cat, []);
+      }
+      const arr = groups.get(cat);
+      if (arr) {
+        arr.push(pwd);
+      }
+    }
+    return groups;
+  }
+
+  getCategoryKeys(): string[] {
+    const keys: string[] = [];
+    const groups = this.getGroupedPasswords();
+    groups.forEach((value, key) => {
+      keys.push(key);
+    });
+    return keys;
+  }
+
+  getPasswordsForCategory(category: string): PasswordModel[] {
+    const groups = this.getGroupedPasswords();
+    return groups.get(category) || [];
+  }
+
   build() {
     Stack({ alignContent: Alignment.BottomEnd }) {
       Column() {
@@ -138,6 +179,7 @@ struct PasswordListPage {
             .borderRadius(22)
             .onChange((value: string) => {
               this.searchKeyword = value;
+              this.groupedMode = (this.selectedCategory === '全部' && !value.trim());
               this.loadPasswords();
             })
         }
@@ -155,6 +197,7 @@ struct PasswordListPage {
               .borderRadius(16)
               .onClick(() => {
                 this.selectedCategory = category;
+                this.groupedMode = (category === '全部' && !this.searchKeyword.trim());
                 this.loadPasswords();
               })
           }, (category: string) => category)
@@ -182,6 +225,64 @@ struct PasswordListPage {
               })
           }
           .margin({ top: 100 })
+        } else if (this.groupedMode && this.selectedCategory === '全部' && !this.searchKeyword.trim()) {
+          // 分组折叠模式
+          List({ space: 8 }) {
+            ForEach(this.getCategoryKeys(), (cat: string) => {
+              ListItem() {
+                Column() {
+                  // 分组头部
+                  Row() {
+                    Text(cat)
+                      .fontSize(14)
+                      .fontWeight(FontWeight.Medium)
+                      .fontColor('#333333')
+                    Text(`${this.getPasswordsForCategory(cat).length}`)
+                      .fontSize(12)
+                      .fontColor('#999999')
+                      .margin({ left: 8 })
+                    Blank()
+                    Text(this.collapsedCategories.has(cat) ? '▶' : '▼')
+                      .fontSize(12)
+                      .fontColor('#999999')
+                  }
+                  .width('100%')
+                  .padding({ left: 16, right: 16, top: 10, bottom: 10 })
+                  .backgroundColor('#F8F8F8')
+                  .borderRadius(8)
+                  .onClick(() => {
+                    this.toggleCategory(cat);
+                  })
+
+                  // 分组内容
+                  if (!this.collapsedCategories.has(cat)) {
+                    Column({ space: 12 }) {
+                      ForEach(this.getPasswordsForCategory(cat), (item: PasswordModel) => {
+                        PasswordCard({
+                          item: item,
+                          isShowPassword: this.showPasswordIds.has(item.id),
+                          onTogglePassword: (): void => { this.toggleShowPassword(item.id); },
+                          onEdit: (): void => {
+                            this.getUIContext().getRouter().pushUrl({
+                              url: AppConstants.PAGE_PASSWORD_DETAIL,
+                              params: { id: item.id }
+                            });
+                          },
+                          onDelete: (): void => { this.deletePassword(item.id); },
+                          onCopy: (): void => { this.copyPassword(item.password); }
+                        })
+                      }, (item: PasswordModel) => item.id.toString() + '_' + item.updateTime)
+                    }
+                    .padding({ top: 8 })
+                  }
+                }
+              }
+            }, (cat: string) => cat)
+          }
+          .width('100%')
+          .layoutWeight(1)
+          .padding({ left: 16, right: 16 })
+          .edgeEffect(EdgeEffect.Spring)
         } else {
           List({ space: 12 }) {
             ForEach(this.passwordList, (item: PasswordModel) => {
@@ -416,5 +517,11 @@ struct PasswordCard {
     .onClick(() => {
       this.onEdit();
     })
+    .gesture(
+      LongPressGesture({ repeat: false })
+        .onAction(() => {
+          this.onCopy();
+        })
+    )
   }
 }

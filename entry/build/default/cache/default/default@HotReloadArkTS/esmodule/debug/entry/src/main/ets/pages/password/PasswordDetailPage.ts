@@ -16,6 +16,9 @@ interface PasswordDetailPage_Params {
     notes?: string;
     isEdit?: boolean;
     passwordStrength?: number;
+    isWeakPassword?: boolean;
+    weakPasswordReason?: string;
+    weakPasswordDict?: string[];
 }
 import { AppConstants, PASSWORD_CATEGORIES } from "@normalized:N&&&entry/src/main/ets/common/constants/AppConstants&";
 import { DatabaseManager } from "@normalized:N&&&entry/src/main/ets/common/database/DatabaseManager&";
@@ -41,6 +44,19 @@ class PasswordDetailPage extends ViewPU {
         this.__notes = new ObservedPropertySimplePU('', this, "notes");
         this.__isEdit = new ObservedPropertySimplePU(false, this, "isEdit");
         this.__passwordStrength = new ObservedPropertySimplePU(0, this, "passwordStrength");
+        this.__isWeakPassword = new ObservedPropertySimplePU(false, this, "isWeakPassword");
+        this.__weakPasswordReason = new ObservedPropertySimplePU('', this, "weakPasswordReason");
+        this.weakPasswordDict = [
+            '123456', '123456789', '12345678', '1234567', '12345', '1234567890',
+            'password', 'qwerty', 'abc123', '111111', '123123', 'admin',
+            'letmein', 'welcome', 'monkey', 'dragon', 'master', 'login',
+            'princess', 'qwerty123', 'passw0rd', 'shadow', 'sunshine',
+            '000000', '666666', '888888', 'iloveyou', 'trustno1',
+            'football', 'baseball', 'access', 'hello', 'charlie',
+            'qwer1234', 'asdf1234', 'zxcv1234', 'password1', 'password123',
+            'a123456', 'aaa111', 'qaz123', 'abcd1234', '123abc',
+            'p@ssw0rd', 'P@ssword1', 'Aa123456', 'aa123456'
+        ];
         this.setInitiallyProvidedValue(params);
         this.finalizeConstruction();
     }
@@ -75,6 +91,15 @@ class PasswordDetailPage extends ViewPU {
         if (params.passwordStrength !== undefined) {
             this.passwordStrength = params.passwordStrength;
         }
+        if (params.isWeakPassword !== undefined) {
+            this.isWeakPassword = params.isWeakPassword;
+        }
+        if (params.weakPasswordReason !== undefined) {
+            this.weakPasswordReason = params.weakPasswordReason;
+        }
+        if (params.weakPasswordDict !== undefined) {
+            this.weakPasswordDict = params.weakPasswordDict;
+        }
     }
     updateStateVars(params: PasswordDetailPage_Params) {
     }
@@ -89,6 +114,8 @@ class PasswordDetailPage extends ViewPU {
         this.__notes.purgeDependencyOnElmtId(rmElmtId);
         this.__isEdit.purgeDependencyOnElmtId(rmElmtId);
         this.__passwordStrength.purgeDependencyOnElmtId(rmElmtId);
+        this.__isWeakPassword.purgeDependencyOnElmtId(rmElmtId);
+        this.__weakPasswordReason.purgeDependencyOnElmtId(rmElmtId);
     }
     aboutToBeDeleted() {
         this.__passwordId.aboutToBeDeleted();
@@ -101,6 +128,8 @@ class PasswordDetailPage extends ViewPU {
         this.__notes.aboutToBeDeleted();
         this.__isEdit.aboutToBeDeleted();
         this.__passwordStrength.aboutToBeDeleted();
+        this.__isWeakPassword.aboutToBeDeleted();
+        this.__weakPasswordReason.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
     }
@@ -174,6 +203,22 @@ class PasswordDetailPage extends ViewPU {
     set passwordStrength(newValue: number) {
         this.__passwordStrength.set(newValue);
     }
+    private __isWeakPassword: ObservedPropertySimplePU<boolean>;
+    get isWeakPassword() {
+        return this.__isWeakPassword.get();
+    }
+    set isWeakPassword(newValue: boolean) {
+        this.__isWeakPassword.set(newValue);
+    }
+    private __weakPasswordReason: ObservedPropertySimplePU<string>;
+    get weakPasswordReason() {
+        return this.__weakPasswordReason.get();
+    }
+    set weakPasswordReason(newValue: string) {
+        this.__weakPasswordReason.set(newValue);
+    }
+    // 常见弱密码字典
+    private weakPasswordDict: string[];
     aboutToAppear() {
         let params = this.getUIContext().getRouter().getParams() as object;
         if (params) {
@@ -202,8 +247,43 @@ class PasswordDetailPage extends ViewPU {
         const pwd = this.password;
         if (!pwd) {
             this.passwordStrength = 0;
+            this.isWeakPassword = false;
+            this.weakPasswordReason = '';
             return;
         }
+        // 弱密码字典检查
+        const lowerPwd = pwd.toLowerCase();
+        if (this.weakPasswordDict.some(w => w.toLowerCase() === lowerPwd)) {
+            this.isWeakPassword = true;
+            this.weakPasswordReason = '此密码在常见泄露密码字典中，极易被破解';
+            this.passwordStrength = 0;
+            return;
+        }
+        // 检查纯数字密码
+        if (/^\d+$/.test(pwd) && pwd.length <= 8) {
+            this.isWeakPassword = true;
+            this.weakPasswordReason = '纯数字短密码容易被暴力破解';
+            this.passwordStrength = 0;
+            return;
+        }
+        // 检查连续字符（如 aaaaaa）
+        if (/^(.)\1+$/.test(pwd)) {
+            this.isWeakPassword = true;
+            this.weakPasswordReason = '密码全是相同字符，安全性极低';
+            this.passwordStrength = 0;
+            return;
+        }
+        // 检查顺序键盘模式
+        const keyboardPatterns = ['qwerty', 'asdfgh', 'zxcvbn', 'qazwsx', '123456', '654321', 'abcdef'];
+        if (keyboardPatterns.some(p => lowerPwd.includes(p))) {
+            this.isWeakPassword = true;
+            this.weakPasswordReason = '包含键盘顺序模式，容易被猜测';
+            this.passwordStrength = 1;
+            return;
+        }
+        this.isWeakPassword = false;
+        this.weakPasswordReason = '';
+        // 强度评分
         let score = 0;
         if (pwd.length >= 8)
             score++;
@@ -395,7 +475,7 @@ class PasswordDetailPage extends ViewPU {
                                 TextInput.borderRadius(8);
                             }, TextInput);
                         }
-                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 202, col: 11 });
+                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 258, col: 11 });
                     ViewPU.create(componentCall);
                     let paramsLambda = () => {
                         return {
@@ -434,7 +514,7 @@ class PasswordDetailPage extends ViewPU {
                                 TextInput.borderRadius(8);
                             }, TextInput);
                         }
-                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 210, col: 11 });
+                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 266, col: 11 });
                     ViewPU.create(componentCall);
                     let paramsLambda = () => {
                         return {
@@ -573,6 +653,40 @@ class PasswordDetailPage extends ViewPU {
                                         }, Text);
                                         Text.pop();
                                         Row.pop();
+                                        this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                            If.create();
+                                            // 弱密码风险提示
+                                            if (this.isWeakPassword) {
+                                                this.ifElseBranchUpdateFunction(0, () => {
+                                                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                                        Row.create({ space: 8 });
+                                                        Row.width('100%');
+                                                        Row.padding(8);
+                                                        Row.backgroundColor('#FFF0F0');
+                                                        Row.borderRadius(6);
+                                                        Row.margin({ top: 4 });
+                                                    }, Row);
+                                                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                                        Text.create('⚠');
+                                                        Text.fontSize(16);
+                                                    }, Text);
+                                                    Text.pop();
+                                                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                                        Text.create(this.weakPasswordReason);
+                                                        Text.fontSize(12);
+                                                        Text.fontColor('#F44336');
+                                                        Text.layoutWeight(1);
+                                                    }, Text);
+                                                    Text.pop();
+                                                    Row.pop();
+                                                });
+                                            }
+                                            else {
+                                                this.ifElseBranchUpdateFunction(1, () => {
+                                                });
+                                            }
+                                        }, If);
+                                        If.pop();
                                     });
                                 }
                                 else {
@@ -582,7 +696,7 @@ class PasswordDetailPage extends ViewPU {
                             }, If);
                             If.pop();
                         }
-                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 218, col: 11 });
+                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 274, col: 11 });
                     ViewPU.create(componentCall);
                     let paramsLambda = () => {
                         return {
@@ -695,6 +809,40 @@ class PasswordDetailPage extends ViewPU {
                                             }, Text);
                                             Text.pop();
                                             Row.pop();
+                                            this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                                If.create();
+                                                // 弱密码风险提示
+                                                if (this.isWeakPassword) {
+                                                    this.ifElseBranchUpdateFunction(0, () => {
+                                                        this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                                            Row.create({ space: 8 });
+                                                            Row.width('100%');
+                                                            Row.padding(8);
+                                                            Row.backgroundColor('#FFF0F0');
+                                                            Row.borderRadius(6);
+                                                            Row.margin({ top: 4 });
+                                                        }, Row);
+                                                        this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                                            Text.create('⚠');
+                                                            Text.fontSize(16);
+                                                        }, Text);
+                                                        Text.pop();
+                                                        this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                                            Text.create(this.weakPasswordReason);
+                                                            Text.fontSize(12);
+                                                            Text.fontColor('#F44336');
+                                                            Text.layoutWeight(1);
+                                                        }, Text);
+                                                        Text.pop();
+                                                        Row.pop();
+                                                    });
+                                                }
+                                                else {
+                                                    this.ifElseBranchUpdateFunction(1, () => {
+                                                    });
+                                                }
+                                            }, If);
+                                            If.pop();
                                         });
                                     }
                                     else {
@@ -749,7 +897,7 @@ class PasswordDetailPage extends ViewPU {
                             ForEach.pop();
                             Row.pop();
                         }
-                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 299, col: 11 });
+                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 372, col: 11 });
                     ViewPU.create(componentCall);
                     let paramsLambda = () => {
                         return {
@@ -807,7 +955,7 @@ class PasswordDetailPage extends ViewPU {
                                 TextInput.borderRadius(8);
                             }, TextInput);
                         }
-                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 317, col: 11 });
+                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 390, col: 11 });
                     ViewPU.create(componentCall);
                     let paramsLambda = () => {
                         return {
@@ -846,7 +994,7 @@ class PasswordDetailPage extends ViewPU {
                                 TextInput.borderRadius(8);
                             }, TextInput);
                         }
-                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 325, col: 11 });
+                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 398, col: 11 });
                     ViewPU.create(componentCall);
                     let paramsLambda = () => {
                         return {
@@ -885,7 +1033,7 @@ class PasswordDetailPage extends ViewPU {
                                 TextArea.borderRadius(8);
                             }, TextArea);
                         }
-                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 333, col: 11 });
+                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordDetailPage.ets", line: 406, col: 11 });
                     ViewPU.create(componentCall);
                     let paramsLambda = () => {
                         return {

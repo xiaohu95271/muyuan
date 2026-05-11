@@ -363,6 +363,36 @@ class WeightDetailPage extends ViewPU {
             this.bmiPreview = 0;
         }
     }
+    // 滚轮选择器辅助方法
+    getIntRange(): string[] {
+        const range: string[] = [];
+        for (let i = 20; i <= 200; i++) {
+            range.push(i.toString());
+        }
+        return range;
+    }
+    getDecimalRange(): string[] {
+        const range: string[] = [];
+        for (let i = 0; i < 100; i++) {
+            range.push(i.toString().padStart(2, '0'));
+        }
+        return range;
+    }
+    getIntPart(): number {
+        const val = parseFloat(this.weight) || 60;
+        return Math.floor(val);
+    }
+    getDecimalPart(): number {
+        const val = parseFloat(this.weight) || 60;
+        return Math.round((val - Math.floor(val)) * 100);
+    }
+    getIntIndex(): number {
+        const intPart = this.getIntPart();
+        return Math.max(0, Math.min(180, intPart - 20));
+    }
+    getDecimalIndex(): number {
+        return this.getDecimalPart();
+    }
     async saveWeight() {
         const displayWeight = parseFloat(this.weight);
         const kgWeight = this.useKg ? displayWeight : displayWeight / 2;
@@ -540,18 +570,89 @@ class WeightDetailPage extends ViewPU {
         Row.pop();
         Row.pop();
         this.observeComponentCreation2((elmtId, isInitialRender) => {
+            // 滚轮选择器（整数+小数部分）
+            Row.create({ space: 4 });
+            // 滚轮选择器（整数+小数部分）
+            Row.width('100%');
+            // 滚轮选择器（整数+小数部分）
+            Row.padding({ left: 20, right: 20 });
+        }, Row);
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            // 整数部分滚轮
+            TextPicker.create({ range: this.getIntRange(), selected: this.getIntIndex() });
+            // 整数部分滚轮
+            TextPicker.layoutWeight(1);
+            // 整数部分滚轮
+            TextPicker.height(120);
+            // 整数部分滚轮
+            TextPicker.onChange((value: string | string[], index: number | number[]) => {
+                const idx = typeof index === 'number' ? index : index[0];
+                const intPart = 20 + idx;
+                const currentDecimal = this.getDecimalPart();
+                this.weight = `${intPart}.${currentDecimal.toString().padStart(2, '0')}`;
+                this.updateBMIPreview();
+            });
+        }, TextPicker);
+        // 整数部分滚轮
+        TextPicker.pop();
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            Text.create('.');
+            Text.fontSize(32);
+            Text.fontWeight(FontWeight.Bold);
+            Text.fontColor('#333333');
+        }, Text);
+        Text.pop();
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            // 小数部分滚轮
+            TextPicker.create({ range: this.getDecimalRange(), selected: this.getDecimalIndex() });
+            // 小数部分滚轮
+            TextPicker.layoutWeight(1);
+            // 小数部分滚轮
+            TextPicker.height(120);
+            // 小数部分滚轮
+            TextPicker.onChange((value: string | string[], index: number | number[]) => {
+                const idx = typeof index === 'number' ? index : index[0];
+                const currentInt = this.getIntPart();
+                this.weight = `${currentInt}.${idx.toString().padStart(2, '0')}`;
+                this.updateBMIPreview();
+            });
+        }, TextPicker);
+        // 小数部分滚轮
+        TextPicker.pop();
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            Text.create(this.useKg ? 'kg' : '斤');
+            Text.fontSize(16);
+            Text.fontColor('#999999');
+            Text.margin({ left: 8 });
+        }, Text);
+        Text.pop();
+        // 滚轮选择器（整数+小数部分）
+        Row.pop();
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            // 精确输入框（可切换）
             TextInput.create({ placeholder: '0', text: this.weight, controller: this.weightController });
+            // 精确输入框（可切换）
             TextInput.type(InputType.Normal);
-            TextInput.fontSize(56);
-            TextInput.fontWeight(FontWeight.Bold);
+            // 精确输入框（可切换）
+            TextInput.fontSize(20);
+            // 精确输入框（可切换）
+            TextInput.fontWeight(FontWeight.Medium);
+            // 精确输入框（可切换）
             TextInput.fontColor('#333333');
+            // 精确输入框（可切换）
             TextInput.textAlign(TextAlign.Center);
+            // 精确输入框（可切换）
             TextInput.width('100%');
-            TextInput.height(80);
-            TextInput.backgroundColor('transparent');
+            // 精确输入框（可切换）
+            TextInput.height(48);
+            // 精确输入框（可切换）
+            TextInput.backgroundColor('#F5F5F5');
+            // 精确输入框（可切换）
+            TextInput.borderRadius(8);
+            // 精确输入框（可切换）
             TextInput.inputFilter('[0-9.]');
+            // 精确输入框（可切换）
             TextInput.onChange((value: string) => {
-                // 只允许数字和小数点，并确保最多一个小数点
                 let filtered = value.replace(/[^0-9.]/g, '');
                 const parts = filtered.split('.');
                 if (parts.length > 2) {

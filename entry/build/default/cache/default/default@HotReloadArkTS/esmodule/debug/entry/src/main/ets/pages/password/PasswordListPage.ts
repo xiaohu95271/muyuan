@@ -18,6 +18,8 @@ interface PasswordListPage_Params {
     showPasswordIds?: Set<number>;
     swipeDeleteId?: number;
     categories?: string[];
+    collapsedCategories?: Set<string>;
+    groupedMode?: boolean;
     passwordEventId?: number;
 }
 import { AppConstants, PASSWORD_CATEGORIES } from "@normalized:N&&&entry/src/main/ets/common/constants/AppConstants&";
@@ -41,6 +43,8 @@ class PasswordListPage extends ViewPU {
         this.__showPasswordIds = new ObservedPropertyObjectPU(new Set(), this, "showPasswordIds");
         this.__swipeDeleteId = new ObservedPropertySimplePU(-1, this, "swipeDeleteId");
         this.__categories = new ObservedPropertyObjectPU(['全部'], this, "categories");
+        this.__collapsedCategories = new ObservedPropertyObjectPU(new Set(), this, "collapsedCategories");
+        this.__groupedMode = new ObservedPropertySimplePU(true, this, "groupedMode");
         this.passwordEventId = -1;
         this.setInitiallyProvidedValue(params);
         this.finalizeConstruction();
@@ -67,6 +71,12 @@ class PasswordListPage extends ViewPU {
         if (params.categories !== undefined) {
             this.categories = params.categories;
         }
+        if (params.collapsedCategories !== undefined) {
+            this.collapsedCategories = params.collapsedCategories;
+        }
+        if (params.groupedMode !== undefined) {
+            this.groupedMode = params.groupedMode;
+        }
         if (params.passwordEventId !== undefined) {
             this.passwordEventId = params.passwordEventId;
         }
@@ -81,6 +91,8 @@ class PasswordListPage extends ViewPU {
         this.__showPasswordIds.purgeDependencyOnElmtId(rmElmtId);
         this.__swipeDeleteId.purgeDependencyOnElmtId(rmElmtId);
         this.__categories.purgeDependencyOnElmtId(rmElmtId);
+        this.__collapsedCategories.purgeDependencyOnElmtId(rmElmtId);
+        this.__groupedMode.purgeDependencyOnElmtId(rmElmtId);
     }
     aboutToBeDeleted() {
         this.__passwordList.aboutToBeDeleted();
@@ -90,6 +102,8 @@ class PasswordListPage extends ViewPU {
         this.__showPasswordIds.aboutToBeDeleted();
         this.__swipeDeleteId.aboutToBeDeleted();
         this.__categories.aboutToBeDeleted();
+        this.__collapsedCategories.aboutToBeDeleted();
+        this.__groupedMode.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
     }
@@ -141,6 +155,20 @@ class PasswordListPage extends ViewPU {
     }
     set categories(newValue: string[]) {
         this.__categories.set(newValue);
+    }
+    private __collapsedCategories: ObservedPropertyObjectPU<Set<string>>;
+    get collapsedCategories() {
+        return this.__collapsedCategories.get();
+    }
+    set collapsedCategories(newValue: Set<string>) {
+        this.__collapsedCategories.set(newValue);
+    }
+    private __groupedMode: ObservedPropertySimplePU<boolean>;
+    get groupedMode() {
+        return this.__groupedMode.get();
+    }
+    set groupedMode(newValue: boolean) {
+        this.__groupedMode.set(newValue);
     }
     private passwordEventId: number;
     aboutToAppear() {
@@ -248,6 +276,42 @@ class PasswordListPage extends ViewPU {
         }
         this.showPasswordIds = newSet;
     }
+    toggleCategory(category: string): void {
+        const newSet = new Set(this.collapsedCategories);
+        if (newSet.has(category)) {
+            newSet.delete(category);
+        }
+        else {
+            newSet.add(category);
+        }
+        this.collapsedCategories = newSet;
+    }
+    getGroupedPasswords(): Map<string, PasswordModel[]> {
+        const groups = new Map<string, PasswordModel[]>();
+        for (const pwd of this.passwordList) {
+            const cat = pwd.category || '其他';
+            if (!groups.has(cat)) {
+                groups.set(cat, []);
+            }
+            const arr = groups.get(cat);
+            if (arr) {
+                arr.push(pwd);
+            }
+        }
+        return groups;
+    }
+    getCategoryKeys(): string[] {
+        const keys: string[] = [];
+        const groups = this.getGroupedPasswords();
+        groups.forEach((value, key) => {
+            keys.push(key);
+        });
+        return keys;
+    }
+    getPasswordsForCategory(category: string): PasswordModel[] {
+        const groups = this.getGroupedPasswords();
+        return groups.get(category) || [];
+    }
     initialRender() {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Stack.create({ alignContent: Alignment.BottomEnd });
@@ -276,6 +340,7 @@ class PasswordListPage extends ViewPU {
             Search.borderRadius(22);
             Search.onChange((value: string) => {
                 this.searchKeyword = value;
+                this.groupedMode = (this.selectedCategory === '全部' && !value.trim());
                 this.loadPasswords();
             });
         }, Search);
@@ -303,6 +368,7 @@ class PasswordListPage extends ViewPU {
                     Text.borderRadius(16);
                     Text.onClick(() => {
                         this.selectedCategory = category;
+                        this.groupedMode = (category === '全部' && !this.searchKeyword.trim());
                         this.loadPasswords();
                     });
                 }, Text);
@@ -351,8 +417,167 @@ class PasswordListPage extends ViewPU {
                     Column.pop();
                 });
             }
-            else {
+            else if (this.groupedMode && this.selectedCategory === '全部' && !this.searchKeyword.trim()) {
                 this.ifElseBranchUpdateFunction(2, () => {
+                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                        // 分组折叠模式
+                        List.create({ space: 8 });
+                        // 分组折叠模式
+                        List.width('100%');
+                        // 分组折叠模式
+                        List.layoutWeight(1);
+                        // 分组折叠模式
+                        List.padding({ left: 16, right: 16 });
+                        // 分组折叠模式
+                        List.edgeEffect(EdgeEffect.Spring);
+                    }, List);
+                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                        ForEach.create();
+                        const forEachItemGenFunction = _item => {
+                            const cat = _item;
+                            {
+                                const itemCreation = (elmtId, isInitialRender) => {
+                                    ViewStackProcessor.StartGetAccessRecordingFor(elmtId);
+                                    ListItem.create(deepRenderFunction, true);
+                                    if (!isInitialRender) {
+                                        ListItem.pop();
+                                    }
+                                    ViewStackProcessor.StopGetAccessRecording();
+                                };
+                                const itemCreation2 = (elmtId, isInitialRender) => {
+                                    ListItem.create(deepRenderFunction, true);
+                                };
+                                const deepRenderFunction = (elmtId, isInitialRender) => {
+                                    itemCreation(elmtId, isInitialRender);
+                                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                        Column.create();
+                                    }, Column);
+                                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                        // 分组头部
+                                        Row.create();
+                                        // 分组头部
+                                        Row.width('100%');
+                                        // 分组头部
+                                        Row.padding({ left: 16, right: 16, top: 10, bottom: 10 });
+                                        // 分组头部
+                                        Row.backgroundColor('#F8F8F8');
+                                        // 分组头部
+                                        Row.borderRadius(8);
+                                        // 分组头部
+                                        Row.onClick(() => {
+                                            this.toggleCategory(cat);
+                                        });
+                                    }, Row);
+                                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                        Text.create(cat);
+                                        Text.fontSize(14);
+                                        Text.fontWeight(FontWeight.Medium);
+                                        Text.fontColor('#333333');
+                                    }, Text);
+                                    Text.pop();
+                                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                        Text.create(`${this.getPasswordsForCategory(cat).length}`);
+                                        Text.fontSize(12);
+                                        Text.fontColor('#999999');
+                                        Text.margin({ left: 8 });
+                                    }, Text);
+                                    Text.pop();
+                                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                        Blank.create();
+                                    }, Blank);
+                                    Blank.pop();
+                                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                        Text.create(this.collapsedCategories.has(cat) ? '▶' : '▼');
+                                        Text.fontSize(12);
+                                        Text.fontColor('#999999');
+                                    }, Text);
+                                    Text.pop();
+                                    // 分组头部
+                                    Row.pop();
+                                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                        If.create();
+                                        // 分组内容
+                                        if (!this.collapsedCategories.has(cat)) {
+                                            this.ifElseBranchUpdateFunction(0, () => {
+                                                this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                                    Column.create({ space: 12 });
+                                                    Column.padding({ top: 8 });
+                                                }, Column);
+                                                this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                                    ForEach.create();
+                                                    const forEachItemGenFunction = _item => {
+                                                        const item = _item;
+                                                        {
+                                                            this.observeComponentCreation2((elmtId, isInitialRender) => {
+                                                                if (isInitialRender) {
+                                                                    let componentCall = new PasswordCard(this, {
+                                                                        item: item,
+                                                                        isShowPassword: this.showPasswordIds.has(item.id),
+                                                                        onTogglePassword: (): void => { this.toggleShowPassword(item.id); },
+                                                                        onEdit: (): void => {
+                                                                            this.getUIContext().getRouter().pushUrl({
+                                                                                url: AppConstants.PAGE_PASSWORD_DETAIL,
+                                                                                params: { id: item.id }
+                                                                            });
+                                                                        },
+                                                                        onDelete: (): void => { this.deletePassword(item.id); },
+                                                                        onCopy: (): void => { this.copyPassword(item.password); }
+                                                                    }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordListPage.ets", line: 261, col: 25 });
+                                                                    ViewPU.create(componentCall);
+                                                                    let paramsLambda = () => {
+                                                                        return {
+                                                                            item: item,
+                                                                            isShowPassword: this.showPasswordIds.has(item.id),
+                                                                            onTogglePassword: (): void => { this.toggleShowPassword(item.id); },
+                                                                            onEdit: (): void => {
+                                                                                this.getUIContext().getRouter().pushUrl({
+                                                                                    url: AppConstants.PAGE_PASSWORD_DETAIL,
+                                                                                    params: { id: item.id }
+                                                                                });
+                                                                            },
+                                                                            onDelete: (): void => { this.deletePassword(item.id); },
+                                                                            onCopy: (): void => { this.copyPassword(item.password); }
+                                                                        };
+                                                                    };
+                                                                    componentCall.paramsGenerator_ = paramsLambda;
+                                                                }
+                                                                else {
+                                                                    this.updateStateVarsOfChildByElmtId(elmtId, {
+                                                                        item: item,
+                                                                        isShowPassword: this.showPasswordIds.has(item.id)
+                                                                    });
+                                                                }
+                                                            }, { name: "PasswordCard" });
+                                                        }
+                                                    };
+                                                    this.forEachUpdateFunction(elmtId, this.getPasswordsForCategory(cat), forEachItemGenFunction, (item: PasswordModel) => item.id.toString() + '_' + item.updateTime, false, false);
+                                                }, ForEach);
+                                                ForEach.pop();
+                                                Column.pop();
+                                            });
+                                        }
+                                        else {
+                                            this.ifElseBranchUpdateFunction(1, () => {
+                                            });
+                                        }
+                                    }, If);
+                                    If.pop();
+                                    Column.pop();
+                                    ListItem.pop();
+                                };
+                                this.observeComponentCreation2(itemCreation2, ListItem);
+                                ListItem.pop();
+                            }
+                        };
+                        this.forEachUpdateFunction(elmtId, this.getCategoryKeys(), forEachItemGenFunction, (cat: string) => cat, false, false);
+                    }, ForEach);
+                    ForEach.pop();
+                    // 分组折叠模式
+                    List.pop();
+                });
+            }
+            else {
+                this.ifElseBranchUpdateFunction(3, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         List.create({ space: 12 });
                         List.width('100%');
@@ -399,7 +624,7 @@ class PasswordListPage extends ViewPU {
                                                     },
                                                     onDelete: (): void => { this.deletePassword(item.id); },
                                                     onCopy: (): void => { this.copyPassword(item.password); }
-                                                }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordListPage.ets", line: 189, col: 17 });
+                                                }, undefined, elmtId, () => { }, { page: "entry/src/main/ets/pages/password/PasswordListPage.ets", line: 290, col: 17 });
                                                 ViewPU.create(componentCall);
                                                 let paramsLambda = () => {
                                                     return {
@@ -613,6 +838,13 @@ class PasswordCard extends ViewPU {
             Column.onClick(() => {
                 this.onEdit();
             });
+            globalThis.Gesture.create(GesturePriority.Low);
+            LongPressGesture.create({ repeat: false });
+            LongPressGesture.onAction(() => {
+                this.onCopy();
+            });
+            LongPressGesture.pop();
+            globalThis.Gesture.pop();
         }, Column);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Row.create();

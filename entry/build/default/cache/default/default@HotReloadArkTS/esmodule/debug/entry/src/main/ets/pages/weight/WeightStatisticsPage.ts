@@ -421,7 +421,7 @@ class WeightChart extends ViewPU {
         this.__data = new SynchedPropertyObjectOneWayPU(params.data, this, "data");
         this.__targetWeight = new SynchedPropertySimpleOneWayPU(params.targetWeight, this, "targetWeight");
         this.__canvasWidth = new ObservedPropertySimplePU(0, this, "canvasWidth");
-        this.__canvasHeight = new ObservedPropertySimplePU(260, this, "canvasHeight");
+        this.__canvasHeight = new ObservedPropertySimplePU(300, this, "canvasHeight");
         this.context = new CanvasRenderingContext2D(new RenderingContextSettings(true));
         this.pTop = 30;
         this.pRight = 20;
@@ -594,11 +594,13 @@ class WeightChart extends ViewPU {
         const ctx = this.context;
         const width = this.canvasWidth;
         const height = this.canvasHeight;
-        const chartWidth = width - this.pLeft - this.pRight;
+        // 右侧留出空间给 BMI Y 轴
+        const bmiAxisWidth: number = 44;
+        const chartWidth = width - this.pLeft - this.pRight - bmiAxisWidth;
         const chartHeight = height - this.pTop - this.pBottom;
         // 清空画布
         ctx.clearRect(0, 0, width, height);
-        // 计算数值范围
+        // 计算体重数值范围
         const weights = this.data.map(d => d.weight);
         let minWeight = Math.min(...weights);
         let maxWeight = Math.max(...weights);
@@ -610,6 +612,15 @@ class WeightChart extends ViewPU {
         const paddingRange = weightRange === 0 ? 2 : weightRange * 0.15;
         const yMin = Math.max(0, minWeight - paddingRange);
         const yMax = maxWeight + paddingRange;
+        // 计算 BMI 数值范围
+        const bmis = this.data.map(d => d.bmi).filter(b => b > 0);
+        const hasBmi = bmis.length > 0;
+        let bmiMin: number = 15;
+        let bmiMax: number = 35;
+        if (hasBmi) {
+            bmiMin = Math.max(10, Math.min(...bmis) - 2);
+            bmiMax = Math.max(...bmis) + 2;
+        }
         // 坐标转换函数
         const getX = (index: number): number => {
             if (this.data.length === 1) {
@@ -622,6 +633,12 @@ class WeightChart extends ViewPU {
                 return this.pTop + chartHeight / 2;
             }
             return this.pTop + chartHeight - ((weight - yMin) / (yMax - yMin)) * chartHeight;
+        };
+        const getBmiY = (bmi: number): number => {
+            if (bmiMax === bmiMin) {
+                return this.pTop + chartHeight / 2;
+            }
+            return this.pTop + chartHeight - ((bmi - bmiMin) / (bmiMax - bmiMin)) * chartHeight;
         };
         // 绘制网格线（水平）
         ctx.lineWidth = 1;
@@ -636,9 +653,22 @@ class WeightChart extends ViewPU {
             const value = yMax - (i / gridCount) * (yMax - yMin);
             ctx.beginPath();
             ctx.moveTo(this.pLeft, y);
-            ctx.lineTo(width - this.pRight, y);
+            ctx.lineTo(this.pLeft + chartWidth, y);
             ctx.stroke();
+            // 左侧 Y 轴标签（体重）
+            ctx.fillStyle = '#FF6B6B';
+            ctx.textAlign = 'right';
             ctx.fillText(value.toFixed(1), this.pLeft - 6, y);
+        }
+        // 右侧 BMI Y 轴标签
+        if (hasBmi) {
+            ctx.textAlign = 'left';
+            for (let i = 0; i <= gridCount; i++) {
+                const y = this.pTop + (i / gridCount) * chartHeight;
+                const bmiValue = bmiMax - (i / gridCount) * (bmiMax - bmiMin);
+                ctx.fillStyle = '#2196F3';
+                ctx.fillText(bmiValue.toFixed(1), this.pLeft + chartWidth + 8, y);
+            }
         }
         // 绘制目标体重虚线
         if (this.targetWeight > 0) {
@@ -648,16 +678,11 @@ class WeightChart extends ViewPU {
             ctx.setLineDash([6, 4]);
             const ty = getY(this.targetWeight);
             ctx.moveTo(this.pLeft, ty);
-            ctx.lineTo(width - this.pRight, ty);
+            ctx.lineTo(this.pLeft + chartWidth, ty);
             ctx.stroke();
             ctx.setLineDash([]);
-            // 目标体重标签
-            ctx.fillStyle = '#4CAF50';
-            ctx.font = '11px sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText(`目标 ${this.targetWeight.toFixed(1)}kg`, width - this.pRight + 4, ty);
         }
-        // 绘制折线
+        // 绘制体重折线
         ctx.beginPath();
         ctx.strokeStyle = '#FF6B6B';
         ctx.lineWidth = 2.5;
@@ -674,7 +699,7 @@ class WeightChart extends ViewPU {
             }
         }
         ctx.stroke();
-        // 绘制填充区域（折线下方半透明）
+        // 绘制体重填充区域
         ctx.beginPath();
         ctx.fillStyle = 'rgba(255, 107, 107, 0.08)';
         for (let i = 0; i < this.data.length; i++) {
@@ -691,11 +716,46 @@ class WeightChart extends ViewPU {
         ctx.lineTo(getX(0), this.pTop + chartHeight);
         ctx.closePath();
         ctx.fill();
-        // 绘制数据点
+        // 绘制 BMI 折线（蓝色虚线）
+        if (hasBmi) {
+            ctx.beginPath();
+            ctx.strokeStyle = '#2196F3';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 3]);
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            let started = false;
+            for (let i = 0; i < this.data.length; i++) {
+                if (this.data[i].bmi > 0) {
+                    const x = getX(i);
+                    const y = getBmiY(this.data[i].bmi);
+                    if (!started) {
+                        ctx.moveTo(x, y);
+                        started = true;
+                    }
+                    else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+            // BMI 数据点（小圆点）
+            for (let i = 0; i < this.data.length; i++) {
+                if (this.data[i].bmi > 0) {
+                    const x = getX(i);
+                    const y = getBmiY(this.data[i].bmi);
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#2196F3';
+                    ctx.fill();
+                }
+            }
+        }
+        // 绘制体重数据点
         for (let i = 0; i < this.data.length; i++) {
             const x = getX(i);
             const y = getY(this.data[i].weight);
-            // 外圈
             ctx.beginPath();
             ctx.arc(x, y, 5, 0, 2 * Math.PI);
             ctx.fillStyle = '#FFFFFF';
@@ -703,7 +763,6 @@ class WeightChart extends ViewPU {
             ctx.strokeStyle = '#FF6B6B';
             ctx.lineWidth = 2;
             ctx.stroke();
-            // 内圈
             ctx.beginPath();
             ctx.arc(x, y, 3, 0, 2 * Math.PI);
             ctx.fillStyle = '#FF6B6B';
@@ -720,7 +779,7 @@ class WeightChart extends ViewPU {
             const dateStr = DateUtil.formatDate(this.data[i].date).substring(5);
             ctx.fillText(dateStr, x, this.pTop + chartHeight + 8);
         }
-        // 绘制数值标签（在点上方）
+        // 绘制体重数值标签（在点上方）
         ctx.fillStyle = '#666666';
         ctx.font = 'bold 11px sans-serif';
         ctx.textAlign = 'center';
@@ -730,16 +789,40 @@ class WeightChart extends ViewPU {
             const y = getY(this.data[i].weight);
             ctx.fillText(this.data[i].weight.toFixed(1), x, y - 10);
         }
-        // 绘制 Y 轴标题
-        ctx.save();
-        ctx.translate(12, height / 2);
-        ctx.rotate(-Math.PI / 2);
-        ctx.fillStyle = '#AAAAAA';
+        // 绘制图例
+        const legendY = height - 12;
         ctx.font = '11px sans-serif';
-        ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('体重 (kg)', 0, 0);
-        ctx.restore();
+        // 体重图例
+        ctx.fillStyle = '#FF6B6B';
+        ctx.beginPath();
+        ctx.arc(this.pLeft + 8, legendY, 4, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.fillStyle = '#666666';
+        ctx.textAlign = 'left';
+        ctx.fillText('体重(kg)', this.pLeft + 16, legendY);
+        // BMI 图例
+        if (hasBmi) {
+            ctx.fillStyle = '#2196F3';
+            ctx.beginPath();
+            ctx.arc(this.pLeft + 80, legendY, 4, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillStyle = '#666666';
+            ctx.fillText('BMI', this.pLeft + 88, legendY);
+        }
+        // 目标图例
+        if (this.targetWeight > 0) {
+            ctx.strokeStyle = '#4CAF50';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 3]);
+            ctx.beginPath();
+            ctx.moveTo(this.pLeft + 120, legendY);
+            ctx.lineTo(this.pLeft + 136, legendY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#666666';
+            ctx.fillText(`目标${this.targetWeight.toFixed(0)}kg`, this.pLeft + 140, legendY);
+        }
     }
     rerender() {
         this.updateDirtyElements();

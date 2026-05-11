@@ -21,6 +21,21 @@ struct PasswordDetailPage {
   @State notes: string = '';
   @State isEdit: boolean = false;
   @State passwordStrength: number = 0; // 0-3
+  @State isWeakPassword: boolean = false;
+  @State weakPasswordReason: string = '';
+
+  // 常见弱密码字典
+  private weakPasswordDict: string[] = [
+    '123456', '123456789', '12345678', '1234567', '12345', '1234567890',
+    'password', 'qwerty', 'abc123', '111111', '123123', 'admin',
+    'letmein', 'welcome', 'monkey', 'dragon', 'master', 'login',
+    'princess', 'qwerty123', 'passw0rd', 'shadow', 'sunshine',
+    '000000', '666666', '888888', 'iloveyou', 'trustno1',
+    'football', 'baseball', 'access', 'hello', 'charlie',
+    'qwer1234', 'asdf1234', 'zxcv1234', 'password1', 'password123',
+    'a123456', 'aaa111', 'qaz123', 'abcd1234', '123abc',
+    'p@ssw0rd', 'P@ssword1', 'Aa123456', 'aa123456'
+  ];
 
   aboutToAppear() {
     let params = this.getUIContext().getRouter().getParams() as object;
@@ -52,8 +67,49 @@ struct PasswordDetailPage {
     const pwd = this.password;
     if (!pwd) {
       this.passwordStrength = 0;
+      this.isWeakPassword = false;
+      this.weakPasswordReason = '';
       return;
     }
+
+    // 弱密码字典检查
+    const lowerPwd = pwd.toLowerCase();
+    if (this.weakPasswordDict.some(w => w.toLowerCase() === lowerPwd)) {
+      this.isWeakPassword = true;
+      this.weakPasswordReason = '此密码在常见泄露密码字典中，极易被破解';
+      this.passwordStrength = 0;
+      return;
+    }
+
+    // 检查纯数字密码
+    if (/^\d+$/.test(pwd) && pwd.length <= 8) {
+      this.isWeakPassword = true;
+      this.weakPasswordReason = '纯数字短密码容易被暴力破解';
+      this.passwordStrength = 0;
+      return;
+    }
+
+    // 检查连续字符（如 aaaaaa）
+    if (/^(.)\1+$/.test(pwd)) {
+      this.isWeakPassword = true;
+      this.weakPasswordReason = '密码全是相同字符，安全性极低';
+      this.passwordStrength = 0;
+      return;
+    }
+
+    // 检查顺序键盘模式
+    const keyboardPatterns = ['qwerty', 'asdfgh', 'zxcvbn', 'qazwsx', '123456', '654321', 'abcdef'];
+    if (keyboardPatterns.some(p => lowerPwd.includes(p))) {
+      this.isWeakPassword = true;
+      this.weakPasswordReason = '包含键盘顺序模式，容易被猜测';
+      this.passwordStrength = 1;
+      return;
+    }
+
+    this.isWeakPassword = false;
+    this.weakPasswordReason = '';
+
+    // 强度评分
     let score = 0;
     if (pwd.length >= 8) score++;
     if (pwd.length >= 12) score++;
@@ -292,6 +348,23 @@ struct PasswordDetailPage {
               }
               .width('100%')
               .margin({ top: 4 })
+
+              // 弱密码风险提示
+              if (this.isWeakPassword) {
+                Row({ space: 8 }) {
+                  Text('⚠')
+                    .fontSize(16)
+                  Text(this.weakPasswordReason)
+                    .fontSize(12)
+                    .fontColor('#F44336')
+                    .layoutWeight(1)
+                }
+                .width('100%')
+                .padding(8)
+                .backgroundColor('#FFF0F0')
+                .borderRadius(6)
+                .margin({ top: 4 })
+              }
             }
           }
 
