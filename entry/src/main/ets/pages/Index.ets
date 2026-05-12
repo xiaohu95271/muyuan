@@ -40,9 +40,9 @@ struct Index {
           .fontSize(36)
           .fontColor([this.currentIndex === index ? '#007DFF' : '#999999'])
       } else {
-        Text('⚙')
+        SymbolGlyph($r('sys.symbol.gearshape'))
           .fontSize(36)
-          .fontColor(this.currentIndex === index ? '#007DFF' : '#999999')
+          .fontColor([this.currentIndex === index ? '#007DFF' : '#999999'])
       }
       Text(title)
         .fontSize(16)
@@ -197,339 +197,326 @@ struct HomeContent {
   build() {
     Scroll() {
       Column({ space: 16 }) {
-        // 问候语 + 日期
-        Column({ space: 4 }) {
-          Text(`${this.greeting}！`)
-            .fontSize(26)
-            .fontWeight(FontWeight.Bold)
-            .fontColor('#333333')
-          Text(this.getTodayDateStr())
-            .fontSize(13)
-            .fontColor('#999999')
+        // 问候语 + 日期 + 通知铃铛
+        Row() {
+          Column({ space: 4 }) {
+            Text(`${this.greeting}！`)
+              .fontSize(26)
+              .fontWeight(FontWeight.Bold)
+              .fontColor('#333333')
+            Text(this.getTodayDateStr())
+              .fontSize(13)
+              .fontColor('#999999')
+          }
+          .alignItems(HorizontalAlign.Start)
+          .layoutWeight(1)
+
+          Stack() {
+            Column() {
+              SymbolGlyph($r('sys.symbol.bell'))
+                .fontSize(24)
+                .fontColor(['#333333'])
+            }
+            .width(40)
+            .height(40)
+            .justifyContent(FlexAlign.Center)
+            .alignItems(HorizontalAlign.Center)
+
+            Circle()
+              .width(8)
+              .height(8)
+              .fill('#FF3B30')
+              .position({ top: 8, right: 8 })
+          }
+          .width(40)
+          .height(40)
         }
-        .alignItems(HorizontalAlign.Start)
         .width('100%')
-        .margin({ left: 20, top: 20, bottom: 4 })
+        .padding({ left: 20, right: 20, top: 20 })
 
         // 数据概览卡片
         Row({ space: 10 }) {
-          Column({ space: 4 }) {
-            Text(`${this.passwordCount}`)
-              .fontSize(24)
-              .fontWeight(FontWeight.Bold)
-              .fontColor('#007DFF')
+          Column({ space: 6 }) {
+            Row({ space: 8 }) {
+              Column() {
+                SymbolGlyph($r('sys.symbol.lock'))
+                  .fontSize(16)
+                  .fontColor(['#007DFF'])
+              }
+              .width(32)
+              .height(32)
+              .justifyContent(FlexAlign.Center)
+              .alignItems(HorizontalAlign.Center)
+              .borderRadius(8)
+              .backgroundColor('#DBEAFE')
+
+              Text(`${this.passwordCount}`)
+                .fontSize(24)
+                .fontWeight(FontWeight.Bold)
+                .fontColor('#007DFF')
+            }
             Text('密码记录')
-              .fontSize(11)
-              .fontColor('#666666')
+              .fontSize(12)
+              .fontColor('#333333')
+            Text('守护账户安全')
+              .fontSize(10)
+              .fontColor('#999999')
           }
           .layoutWeight(1)
-          .padding({ top: 14, bottom: 14 })
+          .padding({ top: 14, bottom: 14, left: 12, right: 12 })
           .backgroundColor('#F0F8FF')
-          .borderRadius(12)
-          .alignItems(HorizontalAlign.Center)
+          .borderRadius(14)
+          .alignItems(HorizontalAlign.Start)
 
-          Column({ space: 4 }) {
-            Text(`${this.weightRecordCount}`)
-              .fontSize(24)
-              .fontWeight(FontWeight.Bold)
-              .fontColor('#FF6B6B')
+          Column({ space: 6 }) {
+            Row({ space: 8 }) {
+              Column() {
+                SymbolGlyph($r('sys.symbol.heart'))
+                  .fontSize(16)
+                  .fontColor(['#FF6B6B'])
+              }
+              .width(32)
+              .height(32)
+              .justifyContent(FlexAlign.Center)
+              .alignItems(HorizontalAlign.Center)
+              .borderRadius(8)
+              .backgroundColor('#FFE0E0')
+
+              Text(`${this.weightRecordCount}`)
+                .fontSize(24)
+                .fontWeight(FontWeight.Bold)
+                .fontColor('#FF6B6B')
+            }
             Text('体重记录')
-              .fontSize(11)
-              .fontColor('#666666')
+              .fontSize(12)
+              .fontColor('#333333')
+            Text('记录健康每一天')
+              .fontSize(10)
+              .fontColor('#999999')
           }
           .layoutWeight(1)
-          .padding({ top: 14, bottom: 14 })
+          .padding({ top: 14, bottom: 14, left: 12, right: 12 })
           .backgroundColor('#FFF5F5')
-          .borderRadius(12)
-          .alignItems(HorizontalAlign.Center)
+          .borderRadius(14)
+          .alignItems(HorizontalAlign.Start)
 
-          Column({ space: 4 }) {
+          Column({ space: 6 }) {
             Text(this.latestBmi > 0 ? `${this.latestBmi.toFixed(1)}` : '--')
               .fontSize(24)
               .fontWeight(FontWeight.Bold)
-              .fontColor(DateUtil.getBMIColor(this.latestBmi))
+              .fontColor(this.latestBmi > 0 ? DateUtil.getBMIColor(this.latestBmi) : '#999999')
             Text('BMI')
-              .fontSize(11)
-              .fontColor('#666666')
+              .fontSize(12)
+              .fontColor('#333333')
+            Text('健康指数')
+              .fontSize(10)
+              .fontColor('#999999')
           }
           .layoutWeight(1)
           .padding({ top: 14, bottom: 14 })
           .backgroundColor('#F0FFF4')
-          .borderRadius(12)
+          .borderRadius(14)
           .alignItems(HorizontalAlign.Center)
         }
         .width('100%')
         .padding({ left: 16, right: 16 })
 
-        // 智能提醒卡片
-        if (this.daysSinceLastRecord >= 3) {
-          Row() {
-            Text('⚠')
-              .fontSize(22)
-              .margin({ right: 12 })
-            Column({ space: 3 }) {
-              Text(`已${this.daysSinceLastRecord}天未记录体重`)
-                .fontSize(14)
-                .fontWeight(FontWeight.Medium)
-                .fontColor('#FF6B00')
-              Text('坚持记录才能更好地管理体重哦～')
-                .fontSize(12)
-                .fontColor('#999999')
-            }
-            .alignItems(HorizontalAlign.Start)
-            .layoutWeight(1)
-
-            Button('去记录')
-              .fontSize(12)
-              .fontColor('#FFFFFF')
-              .backgroundColor('#FF6B00')
-              .height(30)
-              .borderRadius(15)
-              .padding({ left: 14, right: 14 })
-              .onClick(() => {
-                this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_WEIGHT_DETAIL });
-              })
-          }
-          .width('100%')
-          .padding(14)
-          .backgroundColor('#FFF8F0')
-          .borderRadius(12)
-          .border({ width: 1, color: '#FFE0C0' })
-          .margin({ left: 16, right: 16 })
-        }
-
-        // 目标进度卡片
-        if (this.weightGoal.targetWeight > 0 && this.latestWeightNum > 0) {
-          Column({ space: 12 }) {
-            Row() {
-              Text('目标进度')
-                .fontSize(16)
-                .fontWeight(FontWeight.Medium)
-                .fontColor('#333333')
-              Blank()
-              Text(`${Math.round(this.goalProgress * 100)}%`)
-                .fontSize(14)
-                .fontWeight(FontWeight.Bold)
-                .fontColor('#4CAF50')
-            }
-            .width('100%')
-
-            // 进度条
-            Stack({ alignContent: Alignment.Start }) {
-              Row()
-                .width('100%')
-                .height(8)
-                .backgroundColor('#F0F0F0')
-                .borderRadius(4)
-              Row()
-                .width(`${Math.round(this.goalProgress * 100)}%`)
-                .height(8)
-                .backgroundColor('#4CAF50')
-                .borderRadius(4)
-            }
-            .width('100%')
-
-            Row() {
-              Text(`当前 ${this.latestWeightNum.toFixed(1)} kg`)
-                .fontSize(12)
-                .fontColor('#666666')
-              Blank()
-              Text(`目标 ${this.weightGoal.targetWeight.toFixed(1)} kg`)
-                .fontSize(12)
-                .fontColor('#4CAF50')
-            }
-            .width('100%')
-          }
-          .width('100%')
-          .padding(16)
-          .backgroundColor('#FFFFFF')
-          .borderRadius(16)
-          .margin({ left: 16, right: 16 })
-        }
-
         // 密码保险柜卡片
         Row() {
           Column({ space: 8 }) {
             Text('密码保险柜')
-              .fontSize(20)
-              .fontWeight(FontWeight.Medium)
+              .fontSize(22)
+              .fontWeight(FontWeight.Bold)
               .fontColor('#FFFFFF')
             Text(`${this.passwordCount} 条记录·安全守护中`)
               .fontSize(13)
               .fontColor('rgba(255,255,255,0.8)')
-            Button('查看全部')
-              .fontSize(12)
-              .fontColor('#007DFF')
-              .backgroundColor('#FFFFFF')
-              .height(30)
-              .width(80)
-              .margin({ top: 8 })
-              .onClick(() => {
-                this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_PASSWORD_LIST });
-              })
+            Button() {
+              Text('查看全部')
+                .fontSize(13)
+                .fontColor('#007DFF')
+                .fontWeight(FontWeight.Medium)
+            }
+            .height(34)
+            .padding({ left: 16, right: 16 })
+            .backgroundColor('#FFFFFF')
+            .borderRadius(17)
+            .margin({ top: 10 })
+            .onClick(() => {
+              this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_PASSWORD_LIST });
+            })
           }
           .alignItems(HorizontalAlign.Start)
           .layoutWeight(1)
 
           // 盾牌图标
           Column() {
-            Text('🛡️')
-              .fontSize(48)
+            SymbolGlyph($r('sys.symbol.info_shield'))
+              .fontSize(64)
+              .fontColor(['rgba(255,255,255,0.9)'])
           }
-          .width(64)
-          .height(64)
+          .width(80)
+          .height(80)
           .justifyContent(FlexAlign.Center)
         }
         .width('100%')
-        .height(130)
-        .padding(20)
+        .height(150)
+        .padding({ left: 24, right: 24, top: 24, bottom: 24 })
         .linearGradient({
           direction: GradientDirection.LeftTop,
           colors: [['#667eea', 0.0], ['#764ba2', 1.0]]
         })
-        .borderRadius(16)
+        .borderRadius(20)
         .margin({ left: 16, right: 16 })
 
         // 最近密码活动
-        if (this.recentPasswords.length > 0) {
-          Column({ space: 10 }) {
-            Row() {
-              Text('最近密码')
-                .fontSize(16)
-                .fontWeight(FontWeight.Medium)
-                .fontColor('#333333')
-              Blank()
-              Text('更多 >')
-                .fontSize(12)
-                .fontColor('#007DFF')
-                .onClick(() => {
-                  this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_PASSWORD_LIST });
-                })
-            }
-            .width('100%')
-
-            ForEach(this.recentPasswords, (item: PasswordModel) => {
-              Row({ space: 12 }) {
-                Text(item.platform.substring(0, 1))
-                  .fontSize(16)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#FFFFFF')
-                  .width(36)
-                  .height(36)
-                  .textAlign(TextAlign.Center)
-                  .backgroundColor(this.getCategoryColor(item.category))
-                  .borderRadius(10)
-
-                Column({ space: 2 }) {
-                  Text(item.platform)
-                    .fontSize(14)
-                    .fontWeight(FontWeight.Medium)
-                    .fontColor('#333333')
-                  Text(item.account)
-                    .fontSize(11)
-                    .fontColor('#999999')
-                }
-                .alignItems(HorizontalAlign.Start)
-                .layoutWeight(1)
-
-                Text(item.category)
-                  .fontSize(10)
-                  .fontColor(this.getCategoryColor(item.category))
-                  .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-                  .backgroundColor(`${this.getCategoryColor(item.category)}15`)
-                  .borderRadius(6)
-              }
-              .width('100%')
-              .padding(10)
-              .backgroundColor('#F8F9FA')
-              .borderRadius(10)
-              .onClick(() => {
-                this.getUIContext().getRouter().pushUrl({
-                  url: AppConstants.PAGE_PASSWORD_DETAIL,
-                  params: { id: item.id }
-                });
-              })
-            }, (item: PasswordModel) => item.id.toString())
-          }
-          .width('100%')
-          .padding(16)
-          .backgroundColor('#FFFFFF')
-          .borderRadius(16)
-          .margin({ left: 16, right: 16 })
-        }
+        // if (this.recentPasswords.length > 0) {
+        //   Column({ space: 12 }) {
+        //     Row() {
+        //       Text('最近密码')
+        //         .fontSize(17)
+        //         .fontWeight(FontWeight.Bold)
+        //         .fontColor('#333333')
+        //       Blank()
+        //       Row({ space: 4 }) {
+        //         Text('更多')
+        //           .fontSize(13)
+        //           .fontColor('#007DFF')
+        //         Text('>')
+        //           .fontSize(13)
+        //           .fontColor('#007DFF')
+        //       }
+        //       .onClick(() => {
+        //         this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_PASSWORD_LIST });
+        //       })
+        //     }
+        //     .width('100%')
+        //
+        //     ForEach(this.recentPasswords, (item: PasswordModel) => {
+        //       Row({ space: 12 }) {
+        //         Text(item.platform.substring(0, 1))
+        //           .fontSize(16)
+        //           .fontWeight(FontWeight.Bold)
+        //           .fontColor('#FFFFFF')
+        //           .width(40)
+        //           .height(40)
+        //           .textAlign(TextAlign.Center)
+        //           .backgroundColor(this.getCategoryColor(item.category))
+        //           .borderRadius(12)
+        //
+        //         Column({ space: 3 }) {
+        //           Text(item.platform)
+        //             .fontSize(15)
+        //             .fontWeight(FontWeight.Medium)
+        //             .fontColor('#333333')
+        //           Text(item.account)
+        //             .fontSize(12)
+        //             .fontColor('#999999')
+        //         }
+        //         .alignItems(HorizontalAlign.Start)
+        //         .layoutWeight(1)
+        //
+        //         Text(item.category)
+        //           .fontSize(11)
+        //           .fontColor(this.getCategoryColor(item.category))
+        //           .padding({ left: 8, right: 8, top: 3, bottom: 3 })
+        //           .backgroundColor(`${this.getCategoryColor(item.category)}15`)
+        //           .borderRadius(8)
+        //       }
+        //       .width('100%')
+        //       .padding(12)
+        //       .backgroundColor('#F8F9FA')
+        //       .borderRadius(12)
+        //       .onClick(() => {
+        //         this.getUIContext().getRouter().pushUrl({
+        //           url: AppConstants.PAGE_PASSWORD_DETAIL,
+        //           params: { id: item.id }
+        //         });
+        //       })
+        //     }, (item: PasswordModel) => item.id.toString())
+        //   }
+        //   .width('100%')
+        //   .padding(16)
+        //   .backgroundColor('#FFFFFF')
+        //   .borderRadius(16)
+        //   .margin({ left: 16, right: 16 })
+        // }
 
         // 体重记录卡片
         Row() {
           Column({ space: 8 }) {
             Text('体重记录')
-              .fontSize(20)
-              .fontWeight(FontWeight.Medium)
+              .fontSize(22)
+              .fontWeight(FontWeight.Bold)
               .fontColor('#FFFFFF')
             Text(`最新体重 ${this.latestWeight} kg`)
               .fontSize(13)
               .fontColor('rgba(255,255,255,0.8)')
-            Button('记录今日')
-              .fontSize(12)
-              .fontColor('#FF6B6B')
-              .backgroundColor('#FFFFFF')
-              .height(30)
-              .width(80)
-              .margin({ top: 8 })
-              .onClick(() => {
-                this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_WEIGHT_DETAIL });
-              })
+            Button() {
+              Text('记录今日')
+                .fontSize(13)
+                .fontColor('#FF6B6B')
+                .fontWeight(FontWeight.Medium)
+            }
+            .height(34)
+            .padding({ left: 16, right: 16 })
+            .backgroundColor('#FFFFFF')
+            .borderRadius(17)
+            .margin({ top: 10 })
+            .onClick(() => {
+              this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_WEIGHT_DETAIL });
+            })
           }
           .alignItems(HorizontalAlign.Start)
           .layoutWeight(1)
 
-          // 心形图标
+          // 体重图标
           Column() {
-            Text('❤️')
-              .fontSize(48)
+            SymbolGlyph($r('sys.symbol.heart'))
+              .fontSize(64)
+              .fontColor(['rgba(255,255,255,0.9)'])
           }
-          .width(64)
-          .height(64)
+          .width(80)
+          .height(80)
           .justifyContent(FlexAlign.Center)
         }
         .width('100%')
-        .height(130)
-        .padding(20)
+        .height(150)
+        .padding({ left: 24, right: 24, top: 24, bottom: 24 })
         .linearGradient({
           direction: GradientDirection.LeftTop,
           colors: [['#f093fb', 0.0], ['#f5576c', 1.0]]
         })
-        .borderRadius(16)
+        .borderRadius(20)
         .margin({ left: 16, right: 16 })
 
         // 快捷操作
         Column({ space: 12 }) {
           Text('快捷操作')
-            .fontSize(16)
-            .fontWeight(FontWeight.Medium)
+            .fontSize(17)
+            .fontWeight(FontWeight.Bold)
             .fontColor('#333333')
             .alignSelf(ItemAlign.Start)
 
           Row({ space: 10 }) {
-            QuickActionButton('生成密码', '#007DFF', () => {
+            QuickActionCard($r('sys.symbol.lock'), '生成密码', '随机生成安全密码', '#007DFF', '#E8F0FE', () => {
               this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_PASSWORD_GENERATOR });
             })
-            QuickActionButton('体重统计', '#FF6B6B', () => {
+            QuickActionCard($r('sys.symbol.rectangle_split_3x1'), '体重统计', '查看体重变化趋势', '#4CAF50', '#E8F5E9', () => {
               this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_WEIGHT_STATISTICS });
             })
           }
           .width('100%')
-          .justifyContent(FlexAlign.SpaceBetween)
 
           Row({ space: 10 }) {
-            QuickActionButton('添加密码', '#9C27B0', () => {
+            QuickActionCard($r('sys.symbol.plus_circle'), '添加密码', '手动添加密码记录', '#9C27B0', '#F3E5F5', () => {
               this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_PASSWORD_DETAIL });
             })
-            QuickActionButton('设置', '#607D8B', () => {
+            QuickActionCard($r('sys.symbol.gearshape'), '设置', '管理应用设置', '#607D8B', '#ECEFF1', () => {
               this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_SETTINGS });
             })
           }
           .width('100%')
-          .justifyContent(FlexAlign.SpaceBetween)
         }
         .width('100%')
         .padding(16)
@@ -538,21 +525,38 @@ struct HomeContent {
         .margin({ left: 16, right: 16 })
 
         // 安全小贴士
-        Column({ space: 8 }) {
-          Text('💡 安全小贴士')
-            .fontSize(14)
-            .fontWeight(FontWeight.Medium)
-            .fontColor('#333333')
-            .alignSelf(ItemAlign.Start)
-          Text(this.getSecurityTip())
-            .fontSize(13)
-            .fontColor('#666666')
-            .lineHeight(20)
+        Row() {
+          Row() {
+            Text('💡')
+              .fontSize(22)
+          }
+          .width(36)
+          .height(36)
+          .justifyContent(FlexAlign.Center)
+          .margin({ right: 10 })
+
+          Column({ space: 3 }) {
+            Text('安全小贴士')
+              .fontSize(14)
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#333333')
+            Text(this.getSecurityTip())
+              .fontSize(12)
+              .fontColor('#666666')
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+          }
+          .alignItems(HorizontalAlign.Start)
+          .layoutWeight(1)
+
+          Text('>')
+            .fontSize(18)
+            .fontColor('#CCCCCC')
         }
         .width('100%')
-        .padding(16)
-        .backgroundColor('#FFFDE7')
-        .borderRadius(12)
+        .padding({ left: 16, right: 16, top: 14, bottom: 14 })
+        .backgroundColor('#FFF9E6')
+        .borderRadius(14)
         .margin({ left: 16, right: 16, bottom: 8 })
       }
       .width('100%')
@@ -594,17 +598,38 @@ struct HomeContent {
 }
 
 @Builder
-function QuickActionButton(text: string, color: string, onClick: () => void) {
-  Button() {
-    Text(text)
-      .fontSize(14)
-      .fontColor(color)
+function QuickActionCard(icon: Resource, text: string, subtitle: string, color: string, bgColor: string, onClick: () => void) {
+  Column({ space: 6 }) {
+    Row({ space: 10 }) {
+      Column() {
+        SymbolGlyph(icon)
+          .fontSize(20)
+          .fontColor([color])
+      }
+      .width(38)
+      .height(38)
+      .justifyContent(FlexAlign.Center)
+      .alignItems(HorizontalAlign.Center)
+      .borderRadius(10)
+      .backgroundColor(bgColor)
+
+      Column({ space: 2 }) {
+        Text(text)
+          .fontSize(14)
+          .fontWeight(FontWeight.Medium)
+          .fontColor(color)
+        Text(subtitle)
+          .fontSize(10)
+          .fontColor('#999999')
+      }
+      .alignItems(HorizontalAlign.Start)
+    }
   }
-  .width('48%')
-  .height(48)
-  .backgroundColor(`${color}15`)
-  .border({ width: 1, color: `${color}30` })
-  .borderRadius(12)
+  .layoutWeight(1)
+  .padding({ left: 12, right: 12, top: 14, bottom: 14 })
+  .backgroundColor('#FFFFFF')
+  .border({ width: 1, color: '#F0F0F0' })
+  .borderRadius(14)
   .onClick(onClick)
 }
 
@@ -1099,48 +1124,117 @@ struct SettingsEntry {
           .fontSize(22)
           .fontWeight(FontWeight.Bold)
           .fontColor('#333333')
+        Blank()
+        Column() {
+          SymbolGlyph($r('sys.symbol.gearshape'))
+            .fontSize(22)
+            .fontColor(['#666666'])
+        }
+        .width(36)
+        .height(36)
+        .justifyContent(FlexAlign.Center)
+        .alignItems(HorizontalAlign.Center)
+        .borderRadius(18)
+        .backgroundColor('#F5F5F5')
       }
       .width('100%')
       .height(56)
-      .padding({ left: 20 })
-      .backgroundColor('#FFFFFF')
+      .padding({ left: 20, right: 20 })
+      .alignItems(VerticalAlign.Center)
 
       Scroll() {
-        Column({ space: 12 }) {
-          // 数据概览
-          Row({ space: 16 }) {
+        Column({ space: 16 }) {
+          // 安全提示 Banner
+          Row() {
             Column({ space: 4 }) {
+              Text('守护你的数据安全')
+                .fontSize(16)
+                .fontWeight(FontWeight.Bold)
+                .fontColor('#1A73E8')
+              Text('加密存储·安全可靠')
+                .fontSize(12)
+                .fontColor('#5B9BD5')
+            }
+            .alignItems(HorizontalAlign.Start)
+            .layoutWeight(1)
+
+            SymbolGlyph($r('sys.symbol.info_shield'))
+              .fontSize(56)
+              .fontColor(['#64B5F6'])
+          }
+          .width('100%')
+          .padding({ left: 20, right: 20, top: 20, bottom: 20 })
+          .linearGradient({
+            direction: GradientDirection.Right,
+            colors: [['#E8F4FD', 0.0], ['#F0F8FF', 1.0]]
+          })
+          .borderRadius(16)
+          .margin({ left: 16, right: 16 })
+
+          // 数据概览卡片
+          Row({ space: 12 }) {
+            Column({ space: 8 }) {
+              Column() {
+                SymbolGlyph($r('sys.symbol.lock'))
+                  .fontSize(22)
+                  .fontColor(['#007DFF'])
+              }
+              .width(40)
+              .height(40)
+              .justifyContent(FlexAlign.Center)
+              .alignItems(HorizontalAlign.Center)
+              .borderRadius(12)
+              .backgroundColor('#DBEAFE')
+
               Text(`${this.passwordCount}`)
-                .fontSize(22)
+                .fontSize(28)
                 .fontWeight(FontWeight.Bold)
                 .fontColor('#007DFF')
               Text('密码记录')
                 .fontSize(12)
                 .fontColor('#666666')
+              Text('安全存储账号密码')
+                .fontSize(10)
+                .fontColor('#999999')
             }
             .layoutWeight(1)
-            .padding(16)
+            .padding({ top: 16, bottom: 16 })
             .backgroundColor('#F0F8FF')
-            .borderRadius(12)
+            .borderRadius(14)
             .alignItems(HorizontalAlign.Center)
 
-            Column({ space: 4 }) {
+            Column({ space: 8 }) {
+              Column() {
+                SymbolGlyph($r('sys.symbol.heart'))
+                  .fontSize(22)
+                  .fontColor(['#FF6B6B'])
+              }
+              .width(40)
+              .height(40)
+              .justifyContent(FlexAlign.Center)
+              .alignItems(HorizontalAlign.Center)
+              .borderRadius(12)
+              .backgroundColor('#FFE0E0')
+
               Text(`${this.weightCount}`)
-                .fontSize(22)
+                .fontSize(28)
                 .fontWeight(FontWeight.Bold)
                 .fontColor('#FF6B6B')
               Text('体重记录')
                 .fontSize(12)
                 .fontColor('#666666')
+              Text('记录健康每一天')
+                .fontSize(10)
+                .fontColor('#999999')
             }
             .layoutWeight(1)
-            .padding(16)
+            .padding({ top: 16, bottom: 16 })
             .backgroundColor('#FFF5F5')
-            .borderRadius(12)
+            .borderRadius(14)
             .alignItems(HorizontalAlign.Center)
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: 12 })
+          .padding({ left: 16, right: 16 })
 
           // 安全设置
           Column({ space: 0 }) {
@@ -1151,11 +1245,35 @@ struct SettingsEntry {
               .margin({ bottom: 8 })
 
             Row() {
-              Text('应用锁')
-                .fontSize(15)
-                .fontColor('#333333')
-              Blank()
+              Column() {
+                SymbolGlyph($r('sys.symbol.lock'))
+                  .fontSize(18)
+                  .fontColor(['#007DFF'])
+              }
+              .width(36)
+              .height(36)
+              .justifyContent(FlexAlign.Center)
+              .alignItems(HorizontalAlign.Center)
+              .borderRadius(10)
+              .backgroundColor('#E8F0FE')
+              .margin({ right: 12 })
+
+              Column({ space: 2 }) {
+                Text('应用锁')
+                  .fontSize(15)
+                  .fontColor('#333333')
+                Text('开启后进入应用需要验证')
+                  .fontSize(11)
+                  .fontColor('#999999')
+              }
+              .alignItems(HorizontalAlign.Start)
+              .layoutWeight(1)
+
               Toggle({ type: ToggleType.Switch, isOn: this.appLockEnabled })
+                .selectedColor('#007DFF')
+                .switchPointColor('#FFFFFF')
+                .backgroundColor('#E0E0E0')
+                .border({ width: 1.5, color: this.appLockEnabled ? '#007DFF' : '#BDBDBD', radius: 14 })
                 .onChange((isOn: boolean) => {
                   this.appLockEnabled = isOn;
                   try {
@@ -1169,16 +1287,41 @@ struct SettingsEntry {
                 })
             }
             .width('100%')
-            .padding({ top: 12, bottom: 12 })
+            .height(64)
+            .alignItems(VerticalAlign.Center)
 
-            Divider().color('#F0F0F0')
+            Divider().color('#F0F0F0').margin({ left: 48 })
 
             Row() {
-              Text('剪贴板自动清除')
-                .fontSize(15)
-                .fontColor('#333333')
-              Blank()
+              Column() {
+                SymbolGlyph($r('sys.symbol.checkmark_square_on_square'))
+                  .fontSize(18)
+                  .fontColor(['#007DFF'])
+              }
+              .width(36)
+              .height(36)
+              .justifyContent(FlexAlign.Center)
+              .alignItems(HorizontalAlign.Center)
+              .borderRadius(10)
+              .backgroundColor('#E8F0FE')
+              .margin({ right: 12 })
+
+              Column({ space: 2 }) {
+                Text('剪贴板自动清除')
+                  .fontSize(15)
+                  .fontColor('#333333')
+                Text('自动清除剪贴板内容')
+                  .fontSize(11)
+                  .fontColor('#999999')
+              }
+              .alignItems(HorizontalAlign.Start)
+              .layoutWeight(1)
+
               Toggle({ type: ToggleType.Switch, isOn: this.clipboardClearEnabled })
+                .selectedColor('#007DFF')
+                .switchPointColor('#FFFFFF')
+                .backgroundColor('#E0E0E0')
+                .border({ width: 1.5, color: this.clipboardClearEnabled ? '#007DFF' : '#BDBDBD', radius: 14 })
                 .onChange((isOn: boolean) => {
                   this.clipboardClearEnabled = isOn;
                   try {
@@ -1192,7 +1335,8 @@ struct SettingsEntry {
                 })
             }
             .width('100%')
-            .padding({ top: 12, bottom: 12 })
+            .height(64)
+            .alignItems(VerticalAlign.Center)
           }
           .width('100%')
           .padding(16)
@@ -1209,33 +1353,75 @@ struct SettingsEntry {
               .margin({ bottom: 8 })
 
             Row() {
-              Text('密码生成器')
-                .fontSize(15)
-                .fontColor('#333333')
-              Blank()
+              Column() {
+                SymbolGlyph($r('sys.symbol.checkmark_square_on_square'))
+                  .fontSize(18)
+                  .fontColor(['#7C4DFF'])
+              }
+              .width(36)
+              .height(36)
+              .justifyContent(FlexAlign.Center)
+              .alignItems(HorizontalAlign.Center)
+              .borderRadius(10)
+              .backgroundColor('#EDE7F6')
+              .margin({ right: 12 })
+
+              Column({ space: 2 }) {
+                Text('密码生成器')
+                  .fontSize(15)
+                  .fontColor('#333333')
+                Text('生成高强度随机密码')
+                  .fontSize(11)
+                  .fontColor('#999999')
+              }
+              .alignItems(HorizontalAlign.Start)
+              .layoutWeight(1)
+
               Text('>')
-                .fontSize(16)
+                .fontSize(18)
                 .fontColor('#CCCCCC')
             }
             .width('100%')
-            .padding({ top: 12, bottom: 12 })
+            .height(64)
+            .alignItems(VerticalAlign.Center)
             .onClick(() => {
               this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_PASSWORD_GENERATOR });
             })
 
-            Divider().color('#F0F0F0')
+            Divider().color('#F0F0F0').margin({ left: 48 })
 
             Row() {
-              Text('全部设置')
-                .fontSize(15)
-                .fontColor('#333333')
-              Blank()
+              Column() {
+                SymbolGlyph($r('sys.symbol.gearshape'))
+                  .fontSize(18)
+                  .fontColor(['#FF8A00'])
+              }
+              .width(36)
+              .height(36)
+              .justifyContent(FlexAlign.Center)
+              .alignItems(HorizontalAlign.Center)
+              .borderRadius(10)
+              .backgroundColor('#FFF3E0')
+              .margin({ right: 12 })
+
+              Column({ space: 2 }) {
+                Text('全部设置')
+                  .fontSize(15)
+                  .fontColor('#333333')
+                Text('管理应用其他设置')
+                  .fontSize(11)
+                  .fontColor('#999999')
+              }
+              .alignItems(HorizontalAlign.Start)
+              .layoutWeight(1)
+
               Text('>')
-                .fontSize(16)
+                .fontSize(18)
                 .fontColor('#CCCCCC')
             }
             .width('100%')
-            .padding({ top: 12, bottom: 12 })
+            .height(64)
+            .alignItems(VerticalAlign.Center)
             .onClick(() => {
               this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_SETTINGS });
             })
@@ -1247,7 +1433,7 @@ struct SettingsEntry {
           .margin({ left: 16, right: 16 })
         }
         .width('100%')
-        .padding({ bottom: 20 })
+        .padding({ top: 4, bottom: 20 })
       }
       .width('100%')
       .layoutWeight(1)

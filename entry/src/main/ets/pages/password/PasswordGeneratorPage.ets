@@ -2,6 +2,7 @@
 import { CryptoUtil } from '../../common/utils/CryptoUtil';
 import { PasswordGeneratorConfig } from '../../models/PasswordModel';
 import { pasteboard } from '@kit.BasicServicesKit';
+import { ToastUtil } from '../../common/utils/ToastUtil';
 
 @Entry
 @Component
@@ -23,9 +24,12 @@ struct PasswordGeneratorPage {
       this.config.includeSpecial,
       this.config.excludeAmbiguous
     );
-    // 添加到历史
-    if (this.generatedPassword && !this.historyList.includes(this.generatedPassword)) {
-      this.historyList = [this.generatedPassword].concat(this.historyList).slice(0, 10);
+    // 添加到历史（最新的在前面，保留最新10条）
+    if (this.generatedPassword) {
+      this.historyList = [this.generatedPassword, ...this.historyList];
+      if (this.historyList.length > 10) {
+        this.historyList = this.historyList.slice(0, 10);
+      }
     }
   }
 
@@ -34,6 +38,7 @@ struct PasswordGeneratorPage {
       const pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, text);
       const systemPasteboard = pasteboard.getSystemPasteboard();
       await systemPasteboard.setData(pasteData);
+      ToastUtil.show('密码已复制');
     } catch (e) {
       console.error('Copy to clipboard error:', JSON.stringify(e));
     }
@@ -43,9 +48,14 @@ struct PasswordGeneratorPage {
     Column() {
       // 顶部导航栏
       Row() {
-        Button('<')
+        Button(){
+          Text() {
+            SymbolSpan($r('sys.symbol.chevron_left'))  // 返回箭头图标
+              .fontSize(28)
+          }
+        }
           .fontSize(28)
-          .fontColor('#333333')
+          .fontColor('#666666')
           .width(52)
           .height(52)
           .type(ButtonType.Circle)
@@ -57,7 +67,7 @@ struct PasswordGeneratorPage {
         Text('密码生成器')
           .fontSize(18)
           .fontWeight(FontWeight.Medium)
-          .fontColor('#333333')
+          .fontColor('#666666')
 
         Blank()
       }
@@ -88,6 +98,7 @@ struct PasswordGeneratorPage {
                 .borderRadius(20)
                 .onClick(() => {
                   this.generatePassword();
+                  ToastUtil.show('密码已从新生成');
                 })
 
               Button('复制')
@@ -207,17 +218,11 @@ struct PasswordGeneratorPage {
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
               
                   Button() {
-                    Shape() {
-                      Path()
-                        .width(20)
-                        .height(20)
-                        .commands('M5 3 L13 3 L13 11 M3 5 L13 5 L13 15 L3 15 Z')
-                        .stroke('#999999')
-                        .strokeWidth(1.2)
-                        .fill('none')
+                    Text() {
+                      SymbolSpan($r('sys.symbol.doc_plaintext'))  // 复制图标
+                        .fontColor(['#4CAF50'])
+                        .fontSize(28)      // 可轻松调整大小
                     }
-                    .width(22)
-                    .height(22)
                   }
                   .width(32)
                   .height(32)
@@ -232,7 +237,7 @@ struct PasswordGeneratorPage {
                 .padding({ left: 12, right: 12 })
                 .backgroundColor('#F8F8F8')
                 .borderRadius(8)
-              }, (pwd: string, index: number) => index.toString())
+              }, (pwd: string, index: number) => `${index}_${pwd}`)
             }
             .width('100%')
             .padding(20)

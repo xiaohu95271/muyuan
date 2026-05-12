@@ -6,6 +6,13 @@ import { DateUtil } from '../../common/utils/DateUtil';
 import { ToastUtil } from '../../common/utils/ToastUtil';
 import { EventUtil } from '../../common/utils/EventUtil';
 import { preferences } from '@kit.ArkData';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
+const maxWeight = 5000;
+// 定义 Domain，通常用于标识业务模块，取值范围 0x0000 到 0xFFFF
+const DOMAIN: number = 0x0001;
+// 定义 Tag，用于标识日志来源，如当前的页面或服务
+const TAG: string = '[WeightDetailPage.ets]';
 
 interface DatePickerResult {
   year: number;
@@ -37,6 +44,7 @@ struct WeightDetailPage {
   @State isShowDatePicker: boolean = false;
   @State isShowTimePicker: boolean = false;
   private weightController: TextInputController = new TextInputController();
+  private bodyFatController: TextInputController = new TextInputController();
 
   aboutToAppear() {
     this.loadHeight();
@@ -77,6 +85,26 @@ struct WeightDetailPage {
   }
 
   async saveHeight() {
+    if (!this.tempHeight.trim()) {
+      // 允许清空身高
+      this.userHeight = 0;
+      this.isEditingHeight = false;
+      this.updateBMIPreview();
+      try {
+        const context = this.getUIContext().getHostContext();
+        const pref = preferences.getPreferencesSync(context, { name: 'app_prefs' });
+        pref.putSync('user_height', '');
+        const goalStr = pref.getSync(AppConstants.PREF_WEIGHT_GOAL, '') as string;
+        let goal: WeightGoal = goalStr ? JSON.parse(goalStr) as WeightGoal : new WeightGoal();
+        goal.height = 0;
+        pref.putSync(AppConstants.PREF_WEIGHT_GOAL, JSON.stringify(goal));
+        await pref.flush();
+        ToastUtil.show('身高已清除');
+      } catch (e) {
+        console.error('Clear height error:', JSON.stringify(e));
+      }
+      return;
+    }
     const h = parseFloat(this.tempHeight);
     if (isNaN(h) || h <= 0) {
       ToastUtil.show('请输入有效的身高');
@@ -88,9 +116,7 @@ struct WeightDetailPage {
     try {
       const context = this.getUIContext().getHostContext();
       const pref = preferences.getPreferencesSync(context, { name: 'app_prefs' });
-      // 保存身高到独立键，避免被设置页覆盖
       pref.putSync('user_height', h.toString());
-      // 同时更新 WeightGoal 中的身高（兼容旧数据）
       const goalStr = pref.getSync(AppConstants.PREF_WEIGHT_GOAL, '') as string;
       let goal: WeightGoal = goalStr ? JSON.parse(goalStr) as WeightGoal : new WeightGoal();
       goal.height = h;
@@ -162,7 +188,7 @@ struct WeightDetailPage {
   // 滚轮选择器辅助方法
   getIntRange(): string[] {
     const range: string[] = [];
-    for (let i = 20; i <= 200; i++) {
+    for (let i = 0; i <= maxWeight; i++) {
       range.push(i.toString());
     }
     return range;
@@ -170,25 +196,25 @@ struct WeightDetailPage {
 
   getDecimalRange(): string[] {
     const range: string[] = [];
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 99; i++) {
       range.push(i.toString().padStart(2, '0'));
     }
     return range;
   }
 
   getIntPart(): number {
-    const val = parseFloat(this.weight) || 60;
+    const val = parseFloat(this.weight) || 0;
     return Math.floor(val);
   }
 
   getDecimalPart(): number {
-    const val = parseFloat(this.weight) || 60;
+    const val = parseFloat(this.weight) || 0;
     return Math.round((val - Math.floor(val)) * 100);
   }
 
   getIntIndex(): number {
     const intPart = this.getIntPart();
-    return Math.max(0, Math.min(180, intPart - 20));
+    return Math.max(0, Math.min(maxWeight, intPart));
   }
 
   getDecimalIndex(): number {
@@ -269,7 +295,7 @@ struct WeightDetailPage {
 
           Button('保存')
             .fontSize(14)
-            .fontColor('#FFFFFF')
+            .fontColor(this.useKg ? '#FFFFFF' : '#666666')
             .backgroundColor('#333333')
             .borderRadius(20)
             .height(36)
@@ -325,11 +351,14 @@ struct WeightDetailPage {
                   .layoutWeight(1)
                   .height(120)
                   .onChange((value: string | string[], index: number | number[]) => {
-                    const idx = typeof index === 'number' ? index : index[0];
-                    const intPart = 20 + idx;
+                    const selectedValue = typeof value === 'string' ? value : value[0];
+                    const intPart = parseInt(selectedValue);
                     const currentDecimal = this.getDecimalPart();
-                    this.weight = `${intPart}.${currentDecimal.toString().padStart(2, '0')}`;
-                    this.updateBMIPreview();
+                    const newWeight = `${intPart}.${currentDecimal.toString().padStart(2, '0')}`;
+                    if (newWeight !== this.weight) {
+                      this.weight = newWeight;
+                      this.updateBMIPreview();
+                    }
                   })
 
                 Text('.')
@@ -342,10 +371,13 @@ struct WeightDetailPage {
                   .layoutWeight(1)
                   .height(120)
                   .onChange((value: string | string[], index: number | number[]) => {
-                    const idx = typeof index === 'number' ? index : index[0];
+                    const selectedValue = typeof value === 'string' ? value : value[0];
                     const currentInt = this.getIntPart();
-                    this.weight = `${currentInt}.${idx.toString().padStart(2, '0')}`;
-                    this.updateBMIPreview();
+                    const newWeight = `${currentInt}.${selectedValue}`;
+                    if (newWeight !== this.weight) {
+                      this.weight = newWeight;
+                      this.updateBMIPreview();
+                    }
                   })
 
                 Text(this.useKg ? 'kg' : '斤')
@@ -362,6 +394,7 @@ struct WeightDetailPage {
                 .fontSize(20)
                 .fontWeight(FontWeight.Medium)
                 .fontColor('#333333')
+                .placeholderColor('#999999')
                 .textAlign(TextAlign.Center)
                 .width('100%')
                 .height(48)
@@ -375,6 +408,11 @@ struct WeightDetailPage {
                     filtered = parts[0] + '.' + parts.slice(1).join('');
                   }
                   this.weight = filtered;
+                  this.updateBMIPreview();
+                })
+                .onBlur(() =>{
+                  let itemWeight = parseFloat(this.weight);
+                  this.weight = itemWeight.toFixed(2);
                   this.updateBMIPreview();
                 })
 
@@ -450,12 +488,28 @@ struct WeightDetailPage {
                 .fontSize(14)
                 .fontColor('#333333')
                 .alignSelf(ItemAlign.Start)
-              TextInput({ placeholder: '例如 22.5', text: $$this.bodyFatRate })
-                .type(InputType.Number)
+              TextInput({ placeholder: '例如 22.50', text: $$this.bodyFatRate, controller: this.bodyFatController })
+                .type(InputType.Normal)
                 .height(48)
+                .fontColor('#333333')
+                .placeholderColor('#999999')
                 .backgroundColor('#F5F5F5')
                 .borderRadius(8)
                 .padding({ left: 16 })
+                .inputFilter('[0-9.]')
+                .maxLength(5)
+                .onChange((value: string) => {
+                  let filtered = value.replace(/[^0-9.]/g, '');
+                  const dotIdx = filtered.indexOf('.');
+                  if (dotIdx >= 0) {
+                    const intPart = filtered.substring(0, dotIdx);
+                    const decPart = filtered.substring(dotIdx + 1).replace(/\./g, '');
+                    filtered = intPart + '.' + decPart.substring(0, 2);
+                  }
+                  if (filtered !== value) {
+                    this.bodyFatRate = filtered;
+                  }
+                })
             }
             .width('100%')
             .backgroundColor('#FFFFFF')
@@ -470,6 +524,8 @@ struct WeightDetailPage {
                 .alignSelf(ItemAlign.Start)
               TextInput({ placeholder: '例如 晨起空腹', text: $$this.notes })
                 .height(48)
+                .fontColor('#333333')
+                .placeholderColor('#999999')
                 .backgroundColor('#F5F5F5')
                 .borderRadius(8)
                 .padding({ left: 16 })
@@ -507,6 +563,8 @@ struct WeightDetailPage {
                 TextInput({ placeholder: '例如 170', text: $$this.tempHeight })
                   .type(InputType.Number)
                   .height(48)
+                  .fontColor('#333333')
+                  .placeholderColor('#999999')
                   .backgroundColor('#F5F5F5')
                   .borderRadius(8)
                   .padding({ left: 16 })

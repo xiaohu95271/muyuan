@@ -169,193 +169,542 @@ struct SettingsPage {
     Column() {
       // 顶部导航栏
       Row() {
-        Button('<')
-          .fontSize(28)
-          .fontColor('#333333')
-          .width(52)
-          .height(52)
-          .type(ButtonType.Circle)
-          .backgroundColor('transparent')
-          .onClick(() => {
-            this.getUIContext().getRouter().back();
-          })
+        Button() {
+          SymbolGlyph($r('sys.symbol.chevron_left'))
+            .fontSize(22)
+            .fontColor(['#333333'])
+        }
+        .width(40)
+        .height(40)
+        .type(ButtonType.Circle)
+        .backgroundColor('transparent')
+        .onClick(() => {
+          this.getUIContext().getRouter().back();
+        })
 
         Text('设置')
-          .fontSize(18)
-          .fontWeight(FontWeight.Medium)
+          .fontSize(20)
+          .fontWeight(FontWeight.Bold)
           .fontColor('#333333')
+          .margin({ left: 4 })
 
         Blank()
       }
       .width('100%')
       .height(56)
-      .padding({ left: 8, right: 16 })
-      .backgroundColor('#FFFFFF')
+      .padding({ left: 12, right: 16 })
+      .alignItems(VerticalAlign.Center)
 
       Scroll() {
-        Column({ space: 16 }) {
+        Column({ space: 20 }) {
           // 安全设置
-          SettingSection({ title: '安全设置' }) {
-            SettingToggleItem('应用锁', this.appLockEnabled, (value) => {
-              this.appLockEnabled = value;
-              this.saveAppLock(value);
-            })
+          Column({ space: 0 }) {
+            Row() {
+              Text('安全设置')
+                .fontSize(14)
+                .fontWeight(FontWeight.Medium)
+                .fontColor('#666666')
+              Blank()
+              Divider().width('60%').color('#EEEEEE')
+            }
+            .width('100%')
+            .padding({ left: 16, right: 16, bottom: 8 })
 
-            if (this.appLockEnabled) {
-              SettingItem({ label: '应用锁密码' }) {
-                TextInput({ placeholder: '4-6位数字密码', text: '' })
-                  .type(InputType.Number)
-                  .width(120)
-                  .height(36)
-                  .backgroundColor('#F5F5F5')
-                  .borderRadius(8)
-                  .maxLength(6)
-                  .onChange((value) => {
-                    if (value.length >= 4) {
-                      this.saveAppLockPin(value);
-                    }
+            Column() {
+              // 应用锁
+              Row() {
+                Column() {
+                  SymbolGlyph($r('sys.symbol.lock'))
+                    .fontSize(18)
+                    .fontColor(['#007DFF'])
+                }
+                .width(38)
+                .height(38)
+                .justifyContent(FlexAlign.Center)
+                .alignItems(HorizontalAlign.Center)
+                .borderRadius(10)
+                .backgroundColor('#E8F0FE')
+                .margin({ right: 12 })
+
+                Column({ space: 2 }) {
+                  Text('应用锁')
+                    .fontSize(15)
+                    .fontColor('#333333')
+                  Text('开启后进入应用需要验证')
+                    .fontSize(11)
+                    .fontColor('#999999')
+                }
+                .alignItems(HorizontalAlign.Start)
+                .layoutWeight(1)
+
+                Toggle({ type: ToggleType.Switch, isOn: this.appLockEnabled })
+                  .selectedColor('#007DFF')
+                  .switchPointColor('#FFFFFF')
+                  .backgroundColor('#E0E0E0')
+                  .border({ width: 1.5, color: this.appLockEnabled ? '#007DFF' : '#BDBDBD', radius: 14 })
+                  .onChange((value: boolean) => {
+                    this.appLockEnabled = value;
+                    this.saveAppLock(value);
                   })
               }
+              .width('100%')
+              .height(64)
+              .padding({ left: 16, right: 16 })
+              .alignItems(VerticalAlign.Center)
 
-              SettingItem({ label: '自动锁定时间' }) {
-                Text(`${this.autoLockTimeout} 分钟`)
-                  .fontSize(14)
-                  .fontColor('#999999')
+              if (this.appLockEnabled) {
+                Divider().color('#F0F0F0').margin({ left: 66, right: 16 })
+
+                Row() {
+                  Column({ space: 2 }) {
+                    Text('应用锁密码')
+                      .fontSize(15)
+                      .fontColor('#333333')
+                  }
+                  .alignItems(HorizontalAlign.Start)
+                  .layoutWeight(1)
+
+                  TextInput({ placeholder: '4-6位数字密码', text: '' })
+                    .type(InputType.Number)
+                    .width(130)
+                    .height(36)
+                    .fontColor('#333333')
+                    .placeholderColor('#999999')
+                    .backgroundColor('#F5F5F5')
+                    .borderRadius(8)
+                    .maxLength(6)
+                    .onChange((value) => {
+                      if (value.length >= 4) {
+                        this.saveAppLockPin(value);
+                      }
+                    })
+                }
+                .width('100%')
+                .height(52)
+                .padding({ left: 66, right: 16 })
+                .alignItems(VerticalAlign.Center)
+
+                Divider().color('#F0F0F0').margin({ left: 66, right: 16 })
+
+                Row() {
+                  Text('自动锁定时间')
+                    .fontSize(15)
+                    .fontColor('#333333')
+                    .layoutWeight(1)
+                  Text(`${this.autoLockTimeout} 分钟`)
+                    .fontSize(14)
+                    .fontColor('#999999')
+                }
+                .width('100%')
+                .height(52)
+                .padding({ left: 66, right: 16 })
+                .alignItems(VerticalAlign.Center)
               }
-            }
 
-            SettingToggleItem('剪贴板自动清除', this.clipboardClearEnabled, (value) => {
-              this.clipboardClearEnabled = value;
-              this.saveClipboardClear(value);
-            })
+              Divider().color('#F0F0F0').margin({ left: 66, right: 16 })
+
+              // 剪贴板自动清除
+              Row() {
+                Column() {
+                  SymbolGlyph($r('sys.symbol.checkmark_square_on_square'))
+                    .fontSize(18)
+                    .fontColor(['#007DFF'])
+                }
+                .width(38)
+                .height(38)
+                .justifyContent(FlexAlign.Center)
+                .alignItems(HorizontalAlign.Center)
+                .borderRadius(10)
+                .backgroundColor('#E8F0FE')
+                .margin({ right: 12 })
+
+                Column({ space: 2 }) {
+                  Text('剪贴板自动清除')
+                    .fontSize(15)
+                    .fontColor('#333333')
+                  Text('自动清除剪贴板内容')
+                    .fontSize(11)
+                    .fontColor('#999999')
+                }
+                .alignItems(HorizontalAlign.Start)
+                .layoutWeight(1)
+
+                Toggle({ type: ToggleType.Switch, isOn: this.clipboardClearEnabled })
+                  .selectedColor('#007DFF')
+                  .switchPointColor('#FFFFFF')
+                  .backgroundColor('#E0E0E0')
+                  .border({ width: 1.5, color: this.clipboardClearEnabled ? '#007DFF' : '#BDBDBD', radius: 14 })
+                  .onChange((value: boolean) => {
+                    this.clipboardClearEnabled = value;
+                    this.saveClipboardClear(value);
+                  })
+              }
+              .width('100%')
+              .height(64)
+              .padding({ left: 16, right: 16 })
+              .alignItems(VerticalAlign.Center)
+            }
+            .width('100%')
+            .backgroundColor('#FFFFFF')
+            .borderRadius(12)
+            .margin({ left: 16, right: 16 })
+            .padding({ top: 4, bottom: 4 })
           }
+          .width('100%')
 
-          // 体重目标设置
-          SettingSection({ title: '体重管理' }) {
-            SettingItem({ label: '目标体重' }) {
-              TextInput({ placeholder: 'kg', text: this.weightGoal.targetWeight > 0 ? this.weightGoal.targetWeight.toString() : '' })
-                .type(InputType.Number)
-                .width(100)
-                .height(36)
-                .backgroundColor('#F5F5F5')
-                .borderRadius(8)
-                .onChange((value) => {
-                  let g = new WeightGoal();
-                  g.targetWeight = parseFloat(value) || 0;
-                  g.targetDate = this.weightGoal.targetDate;
-                  g.height = this.weightGoal.height;
-                  this.weightGoal = g;
-                  this.saveWeightGoal();
-                })
+          // 体重管理
+          Column({ space: 0 }) {
+            Row() {
+              Text('体重管理')
+                .fontSize(14)
+                .fontWeight(FontWeight.Medium)
+                .fontColor('#666666')
+              Blank()
+              Divider().width('60%').color('#EEEEEE')
             }
+            .width('100%')
+            .padding({ left: 16, right: 16, bottom: 8 })
 
-            SettingItem({ label: '身高' }) {
-              TextInput({ placeholder: 'cm', text: this.weightGoal.height > 0 ? this.weightGoal.height.toString() : '' })
-                .type(InputType.Number)
-                .width(100)
-                .height(36)
-                .backgroundColor('#F5F5F5')
-                .borderRadius(8)
-                .onChange((value) => {
-                  let g2 = new WeightGoal();
-                  g2.targetWeight = this.weightGoal.targetWeight;
-                  g2.targetDate = this.weightGoal.targetDate;
-                  g2.height = parseFloat(value) || 170;
-                  this.weightGoal = g2;
-                  this.saveWeightGoal();
-                })
+            Column() {
+              // 目标体重
+              Row() {
+                Column() {
+                  SymbolGlyph($r('sys.symbol.checkmark_square_on_square'))
+                    .fontSize(18)
+                    .fontColor(['#4CAF50'])
+                }
+                .width(38)
+                .height(38)
+                .justifyContent(FlexAlign.Center)
+                .alignItems(HorizontalAlign.Center)
+                .borderRadius(10)
+                .backgroundColor('#E8F5E9')
+                .margin({ right: 12 })
+
+                Column({ space: 2 }) {
+                  Text('目标体重')
+                    .fontSize(15)
+                    .fontColor('#333333')
+                  Text('设置你的目标体重')
+                    .fontSize(11)
+                    .fontColor('#999999')
+                }
+                .alignItems(HorizontalAlign.Start)
+                .layoutWeight(1)
+
+                Row({ space: 4 }) {
+                  TextInput({ placeholder: '60', text: this.weightGoal.targetWeight > 0 ? this.weightGoal.targetWeight.toString() : '' })
+                    .type(InputType.Number)
+                    .width(60)
+                    .height(34)
+                    .fontColor('#333333')
+                    .fontSize(15)
+                    .textAlign(TextAlign.Center)
+                    .placeholderColor('#CCCCCC')
+                    .backgroundColor('#F5F5F5')
+                    .borderRadius(8)
+                    .onChange((value) => {
+                      let g = new WeightGoal();
+                      g.targetWeight = parseFloat(value) || 0;
+                      g.targetDate = this.weightGoal.targetDate;
+                      g.height = this.weightGoal.height;
+                      this.weightGoal = g;
+                      this.saveWeightGoal();
+                    })
+                  Text('kg')
+                    .fontSize(13)
+                    .fontColor('#999999')
+                }
+              }
+              .width('100%')
+              .height(64)
+              .padding({ left: 16, right: 16 })
+              .alignItems(VerticalAlign.Center)
+
+              Divider().color('#F0F0F0').margin({ left: 66, right: 16 })
+
+              // 身高
+              Row() {
+                Column() {
+                  SymbolGlyph($r('sys.symbol.checkmark_square_on_square'))
+                    .fontSize(18)
+                    .fontColor(['#4CAF50'])
+                }
+                .width(38)
+                .height(38)
+                .justifyContent(FlexAlign.Center)
+                .alignItems(HorizontalAlign.Center)
+                .borderRadius(10)
+                .backgroundColor('#E8F5E9')
+                .margin({ right: 12 })
+
+                Column({ space: 2 }) {
+                  Text('身高')
+                    .fontSize(15)
+                    .fontColor('#333333')
+                  Text('设置你的身高')
+                    .fontSize(11)
+                    .fontColor('#999999')
+                }
+                .alignItems(HorizontalAlign.Start)
+                .layoutWeight(1)
+
+                Row({ space: 4 }) {
+                  TextInput({ placeholder: '170', text: this.weightGoal.height > 0 ? this.weightGoal.height.toString() : '' })
+                    .type(InputType.Number)
+                    .width(60)
+                    .height(34)
+                    .fontColor('#333333')
+                    .fontSize(15)
+                    .textAlign(TextAlign.Center)
+                    .placeholderColor('#CCCCCC')
+                    .backgroundColor('#F5F5F5')
+                    .borderRadius(8)
+                    .onChange((value) => {
+                      let g2 = new WeightGoal();
+                      g2.targetWeight = this.weightGoal.targetWeight;
+                      g2.targetDate = this.weightGoal.targetDate;
+                      g2.height = parseFloat(value) || 170;
+                      this.weightGoal = g2;
+                      this.saveWeightGoal();
+                    })
+                  Text('cm')
+                    .fontSize(13)
+                    .fontColor('#999999')
+                }
+              }
+              .width('100%')
+              .height(64)
+              .padding({ left: 16, right: 16 })
+              .alignItems(VerticalAlign.Center)
             }
+            .width('100%')
+            .backgroundColor('#FFFFFF')
+            .borderRadius(12)
+            .margin({ left: 16, right: 16 })
+            .padding({ top: 4, bottom: 4 })
           }
+          .width('100%')
 
           // 数据管理
-          SettingSection({ title: '数据管理' }) {
-            SettingItem({ label: '清除密码数据' }) {
-              Text('')
-              Button() {
-                Shape() {
-                  Path()
-                    .width(20)
-                    .height(20)
-                    .commands('M2 4 L4 4 L4 15 L12 15 L12 4 L14 4 M5 2 L5 4 M11 2 L11 4 M5 6 L5 11 M11 6 L11 11')
-                    .stroke('#FF4444')
-                    .strokeWidth(1.2)
-                    .fill('none')
+          Column({ space: 0 }) {
+            Row() {
+              Text('数据管理')
+                .fontSize(14)
+                .fontWeight(FontWeight.Medium)
+                .fontColor('#666666')
+              Blank()
+              Divider().width('60%').color('#EEEEEE')
+            }
+            .width('100%')
+            .padding({ left: 16, right: 16, bottom: 8 })
+
+            Column() {
+              // 清除密码数据
+              Row() {
+                Column() {
+                  SymbolGlyph($r('sys.symbol.star'))
+                    .fontSize(18)
+                    .fontColor(['#7C4DFF'])
                 }
-                .width(22)
-                .height(22)
+                .width(38)
+                .height(38)
+                .justifyContent(FlexAlign.Center)
+                .alignItems(HorizontalAlign.Center)
+                .borderRadius(10)
+                .backgroundColor('#EDE7F6')
+                .margin({ right: 12 })
+
+                Column({ space: 2 }) {
+                  Text('清除密码数据')
+                    .fontSize(15)
+                    .fontColor('#333333')
+                  Text('删除所有密码记录')
+                    .fontSize(11)
+                    .fontColor('#999999')
+                }
+                .alignItems(HorizontalAlign.Start)
+                .layoutWeight(1)
+
+                Text('>')
+                  .fontSize(18)
+                  .fontColor('#CCCCCC')
               }
-              .width(32)
-              .height(32)
-              .type(ButtonType.Circle)
-              .backgroundColor('transparent')
+              .width('100%')
+              .height(64)
+              .padding({ left: 16, right: 16 })
+              .alignItems(VerticalAlign.Center)
               .onClick(() => {
                 this.clearPasswords();
               })
-            }
 
-            SettingItem({ label: '清除体重数据' }) {
-              Text('')
-              Button() {
-                Shape() {
-                  Path()
-                    .width(20)
-                    .height(20)
-                    .commands('M2 4 L4 4 L4 15 L12 15 L12 4 L14 4 M5 2 L5 4 M11 2 L11 4 M5 6 L5 11 M11 6 L11 11')
-                    .stroke('#FF4444')
-                    .strokeWidth(1.2)
-                    .fill('none')
+              Divider().color('#F0F0F0').margin({ left: 66, right: 16 })
+
+              // 清除体重数据
+              Row() {
+                Column() {
+                  SymbolGlyph($r('sys.symbol.checkmark_square_on_square'))
+                    .fontSize(18)
+                    .fontColor(['#FF5252'])
                 }
-                .width(22)
-                .height(22)
+                .width(38)
+                .height(38)
+                .justifyContent(FlexAlign.Center)
+                .alignItems(HorizontalAlign.Center)
+                .borderRadius(10)
+                .backgroundColor('#FFEBEE')
+                .margin({ right: 12 })
+
+                Column({ space: 2 }) {
+                  Text('清除体重数据')
+                    .fontSize(15)
+                    .fontColor('#333333')
+                  Text('删除所有体重记录')
+                    .fontSize(11)
+                    .fontColor('#999999')
+                }
+                .alignItems(HorizontalAlign.Start)
+                .layoutWeight(1)
+
+                Text('>')
+                  .fontSize(18)
+                  .fontColor('#CCCCCC')
               }
-              .width(32)
-              .height(32)
-              .type(ButtonType.Circle)
-              .backgroundColor('transparent')
+              .width('100%')
+              .height(64)
+              .padding({ left: 16, right: 16 })
+              .alignItems(VerticalAlign.Center)
               .onClick(() => {
                 this.clearWeights();
               })
-            }
 
-            SettingItem({ label: '导出数据' }) {
-              Text('')
-              Button() {
-                Shape() {
-                  Path()
-                    .width(20)
-                    .height(20)
-                    .commands('M8 2 L8 12 M4 8 L8 12 L12 8 M2 14 L14 14')
-                    .stroke('#007DFF')
-                    .strokeWidth(1.2)
-                    .fill('none')
+              Divider().color('#F0F0F0').margin({ left: 66, right: 16 })
+
+              // 导出数据
+              Row() {
+                Column() {
+                  SymbolGlyph($r('sys.symbol.checkmark_square_on_square'))
+                    .fontSize(18)
+                    .fontColor(['#FF8A00'])
                 }
-                .width(22)
-                .height(22)
+                .width(38)
+                .height(38)
+                .justifyContent(FlexAlign.Center)
+                .alignItems(HorizontalAlign.Center)
+                .borderRadius(10)
+                .backgroundColor('#FFF3E0')
+                .margin({ right: 12 })
+
+                Column({ space: 2 }) {
+                  Text('导出数据')
+                    .fontSize(15)
+                    .fontColor('#333333')
+                  Text('将数据导出为文件')
+                    .fontSize(11)
+                    .fontColor('#999999')
+                }
+                .alignItems(HorizontalAlign.Start)
+                .layoutWeight(1)
+
+                Text('>')
+                  .fontSize(18)
+                  .fontColor('#CCCCCC')
               }
-              .width(32)
-              .height(32)
-              .type(ButtonType.Circle)
-              .backgroundColor('transparent')
+              .width('100%')
+              .height(64)
+              .padding({ left: 16, right: 16 })
+              .alignItems(VerticalAlign.Center)
               .onClick(() => {
                 this.exportData();
               })
             }
+            .width('100%')
+            .backgroundColor('#FFFFFF')
+            .borderRadius(12)
+            .margin({ left: 16, right: 16 })
+            .padding({ top: 4, bottom: 4 })
           }
+          .width('100%')
 
           // 关于
-          SettingSection({ title: '关于' }) {
-            SettingItem({ label: '版本' }) {
-              Text('1.0.0')
+          Column({ space: 0 }) {
+            Row() {
+              Text('关于')
                 .fontSize(14)
-                .fontColor('#999999')
+                .fontWeight(FontWeight.Medium)
+                .fontColor('#666666')
+              Blank()
+              Divider().width('60%').color('#EEEEEE')
             }
-            
-            SettingItem({ label: '数据存储' }) {
-              Text('本地加密')
-                .fontSize(14)
-                .fontColor('#4CAF50')
+            .width('100%')
+            .padding({ left: 16, right: 16, bottom: 8 })
+
+            Column() {
+              Row() {
+                Column() {
+                  SymbolGlyph($r('sys.symbol.info_circle'))
+                    .fontSize(18)
+                    .fontColor(['#007DFF'])
+                }
+                .width(38)
+                .height(38)
+                .justifyContent(FlexAlign.Center)
+                .alignItems(HorizontalAlign.Center)
+                .borderRadius(10)
+                .backgroundColor('#E8F0FE')
+                .margin({ right: 12 })
+
+                Text('版本')
+                  .fontSize(15)
+                  .fontColor('#333333')
+                  .layoutWeight(1)
+
+                Text('1.0.0')
+                  .fontSize(14)
+                  .fontColor('#999999')
+              }
+              .width('100%')
+              .height(56)
+              .padding({ left: 16, right: 16 })
+              .alignItems(VerticalAlign.Center)
+
+              Divider().color('#F0F0F0').margin({ left: 66, right: 16 })
+
+              Row() {
+                Column() {
+                  SymbolGlyph($r('sys.symbol.checkmark_square_on_square'))
+                    .fontSize(18)
+                    .fontColor(['#007DFF'])
+                }
+                .width(38)
+                .height(38)
+                .justifyContent(FlexAlign.Center)
+                .alignItems(HorizontalAlign.Center)
+                .borderRadius(10)
+                .backgroundColor('#E8F0FE')
+                .margin({ right: 12 })
+
+                Text('数据存储')
+                  .fontSize(15)
+                  .fontColor('#333333')
+                  .layoutWeight(1)
+
+                Text('本地加密存储')
+                  .fontSize(14)
+                  .fontColor('#4CAF50')
+              }
+              .width('100%')
+              .height(56)
+              .padding({ left: 16, right: 16 })
+              .alignItems(VerticalAlign.Center)
             }
+            .width('100%')
+            .backgroundColor('#FFFFFF')
+            .borderRadius(12)
+            .margin({ left: 16, right: 16 })
+            .padding({ top: 4, bottom: 4 })
           }
+          .width('100%')
         }
         .width('100%')
         .padding({ top: 8, bottom: 20 })
@@ -366,70 +715,5 @@ struct SettingsPage {
     .width('100%')
     .height('100%')
     .backgroundColor('#F5F5F5')
-  }
-}
-
-@Builder
-function SettingToggleItem(label: string, isOn: boolean, onChange: (value: boolean) => void) {
-  Row() {
-    Text(label)
-      .fontSize(15)
-      .fontColor('#333333')
-      .layoutWeight(1)
-
-    Toggle({ type: ToggleType.Switch, isOn: isOn })
-      .selectedColor('#007DFF')
-      .onChange(onChange)
-  }
-  .width('100%')
-  .height(52)
-  .padding({ left: 16, right: 16 })
-  .justifyContent(FlexAlign.SpaceBetween)
-}
-
-@Component
-struct SettingSection {
-  @Prop title: string = '';
-  @BuilderParam content: () => void;
-
-  build() {
-    Column({ space: 0 }) {
-      Text(this.title)
-        .fontSize(13)
-        .fontColor('#999999')
-        .padding({ left: 16, top: 16, bottom: 8 })
-        .alignSelf(ItemAlign.Start)
-
-      Column() {
-        this.content()
-      }
-      .width('100%')
-      .backgroundColor('#FFFFFF')
-      .borderRadius(12)
-      .padding({ top: 4, bottom: 4 })
-      .margin({ left: 16, right: 16 })
-    }
-    .width('100%')
-  }
-}
-
-@Component
-struct SettingItem {
-  @Prop label: string = '';
-  @BuilderParam content: () => void;
-
-  build() {
-    Row() {
-      Text(this.label)
-        .fontSize(15)
-        .fontColor('#333333')
-        .layoutWeight(1)
-
-      this.content()
-    }
-    .width('100%')
-    .height(52)
-    .padding({ left: 16, right: 16 })
-    .justifyContent(FlexAlign.SpaceBetween)
   }
 }

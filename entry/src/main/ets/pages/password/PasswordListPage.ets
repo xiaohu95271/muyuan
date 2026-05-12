@@ -445,17 +445,11 @@ struct PasswordCard {
             .layoutWeight(1)
 
           Button() {
-            Shape() {
-              Path()
-                .width(24)
-                .height(24)
-                .commands('M2 10 Q10 4 18 10 Q10 16 2 10 Z M10 7 A3 3 0 1 0 10 13 A3 3 0 1 0 10 7')
-                .stroke('#999999')
-                .strokeWidth(1.5)
-                .fill('none')
+            Text() {
+              SymbolSpan($r(this.isShowPassword ?'sys.symbol.eye_slash':'sys.symbol.eye'))  // 返回箭头图标
+                .fontColor(['#4CAF50'])
+                .fontSize(28)
             }
-            .width(24)
-            .height(24)
           }
           .width(44)
           .height(44)
@@ -466,17 +460,11 @@ struct PasswordCard {
           })
 
           Button() {
-            Shape() {
-              Path()
-                .width(24)
-                .height(24)
-                .commands('M6 4 L16 4 L16 14 M4 6 L14 6 L14 20 L4 20 Z')
-                .stroke('#999999')
-                .strokeWidth(1.5)
-                .fill('none')
+            Text(){
+              SymbolSpan($r(this.isShowPassword ?'sys.symbol.doc_plaintext':'sys.symbol.doc_plaintext'))  // 返回箭头图标
+                .fontColor(['#4CAF50'])
+                .fontSize(28)
             }
-            .width(24)
-            .height(24)
           }
           .width(44)
           .height(44)

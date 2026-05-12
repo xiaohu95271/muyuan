@@ -258,6 +258,8 @@ struct PasswordDetailPage {
           FormItem({ label: '平台名称 *' }) {
             TextInput({ placeholder: '如：微信、GitHub', text: $$this.platform })
               .height(48)
+              .fontColor('#333333')
+              .placeholderColor('#999999')
               .backgroundColor('#F5F5F5')
               .borderRadius(8)
           }
@@ -266,6 +268,8 @@ struct PasswordDetailPage {
           FormItem({ label: '账号 *' }) {
             TextInput({ placeholder: '用户名/手机号/邮箱', text: $$this.account })
               .height(48)
+              .fontColor('#333333')
+              .placeholderColor('#999999')
               .backgroundColor('#F5F5F5')
               .borderRadius(8)
           }
@@ -276,6 +280,8 @@ struct PasswordDetailPage {
               TextInput({ placeholder: '输入密码', text: $$this.password })
                 .type(InputType.Password)
                 .height(48)
+                .fontColor('#333333')
+                .placeholderColor('#999999')
                 .backgroundColor('#F5F5F5')
                 .borderRadius(8)
                 .layoutWeight(1)
@@ -284,17 +290,11 @@ struct PasswordDetailPage {
                 })
 
               Button() {
-                Shape() {
-                  Path()
-                    .width(22)
-                    .height(22)
-                    .commands('M5 3 L13 3 L13 11 M3 5 L13 5 L13 15 L3 15 Z')
-                    .stroke('#4CAF50')
-                    .strokeWidth(1.5)
-                    .fill('none')
+                Text() {
+                  SymbolSpan($r('sys.symbol.doc_text'))  // 复制图标
+                    .fontColor(['#4CAF50'])
+                    .fontSize(28)      // 可轻松调整大小
                 }
-                .width(24)
-                .height(24)
               }
               .width(44)
               .height(44)
@@ -306,13 +306,11 @@ struct PasswordDetailPage {
 
               Button() {
                 Shape() {
-                  Path()
-                    .width(22)
-                    .height(22)
-                    .commands('M14 4 A8 8 0 1 0 16 10 M16 2 L16 6 L12 6')
-                    .stroke('#007DFF')
-                    .strokeWidth(1.5)
-                    .fill('none')
+                  Text() {
+                    SymbolSpan($r('sys.symbol.satellite_map'))  // 复制图标
+                      .fontColor(['#4CAF50'])
+                      .fontSize(28)      // 可轻松调整大小
+                  }
                 }
                 .width(24)
                 .height(24)
@@ -390,6 +388,8 @@ struct PasswordDetailPage {
           FormItem({ label: '网站地址' }) {
             TextInput({ placeholder: 'https://...', text: $$this.website })
               .height(48)
+              .fontColor('#333333')
+              .placeholderColor('#999999')
               .backgroundColor('#F5F5F5')
               .borderRadius(8)
           }
@@ -398,6 +398,8 @@ struct PasswordDetailPage {
           FormItem({ label: '标签' }) {
             TextInput({ placeholder: '多个标签用逗号分隔', text: $$this.tags })
               .height(48)
+              .fontColor('#333333')
+              .placeholderColor('#999999')
               .backgroundColor('#F5F5F5')
               .borderRadius(8)
           }
@@ -406,6 +408,8 @@ struct PasswordDetailPage {
           FormItem({ label: '备注' }) {
             TextArea({ placeholder: '额外信息...', text: $$this.notes })
               .height(100)
+              .fontColor('#333333')
+              .placeholderColor('#999999')
               .backgroundColor('#F5F5F5')
               .borderRadius(8)
           }
