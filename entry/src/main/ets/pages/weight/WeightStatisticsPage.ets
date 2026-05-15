@@ -185,15 +185,121 @@ struct WeightStatisticsPage {
             .borderRadius(16)
             .margin({ left: 16, right: 16 })
           } else {
-            Column({ space: 16 }) {
-              Text('暂无数据')
-                .fontSize(16)
-                .fontColor('#999999')
-              Text('记录体重后查看统计')
-                .fontSize(13)
-                .fontColor('#CCCCCC')
+            Column({ space: 0 }) {
+              // 空状态插画区域
+              Column({ space: 0 }) {
+                // 装饰性背景圆
+                Stack() {
+                  // 外层淡色圆环
+                  Column()
+                    .width(140)
+                    .height(140)
+                    .borderRadius(70)
+                    .backgroundColor('rgba(255, 107, 107, 0.06)')
+
+                  // 中层圆环
+                  Column()
+                    .width(108)
+                    .height(108)
+                    .borderRadius(54)
+                    .backgroundColor('rgba(255, 107, 107, 0.10)')
+
+                  // 内层图标容器
+                  Column({ space: 4 }) {
+                    SymbolGlyph($r('sys.symbol.character_textbox'))
+                      .fontSize(40)
+                      .fontColor(['#FF6B6B'])
+                  }
+                  .width(76)
+                  .height(76)
+                  .borderRadius(38)
+                  .backgroundColor('#FFFFFF')
+                  .justifyContent(FlexAlign.Center)
+                  .alignItems(HorizontalAlign.Center)
+                  .shadow({ radius: 12, color: 'rgba(255, 107, 107, 0.15)', offsetY: 4 })
+                }
+                .width(140)
+                .height(140)
+                .alignContent(Alignment.Center)
+              }
+              .margin({ top: 40, bottom: 28 })
+
+              // 文案区域
+              Text('还没有体重记录')
+                .fontSize(18)
+                .fontWeight(FontWeight.Medium)
+                .fontColor('#333333')
+                .margin({ bottom: 8 })
+
+              Text('开始记录体重，查看你的健康趋势变化')
+                .fontSize(14)
+                .fontColor('#757575')
+                .margin({ bottom: 8 })
+
+              // 功能预览提示
+              Row({ space: 20 }) {
+                Column({ space: 6 }) {
+                  SymbolGlyph($r('sys.symbol.character_textbox'))
+                    .fontSize(24)
+                    .fontColor(['#FF6B6B'])
+                  Text('趋势分析')
+                    .fontSize(11)
+                    .fontColor('#757575')
+                }
+                .alignItems(HorizontalAlign.Center)
+
+                Column({ space: 6 }) {
+                  SymbolGlyph($r('sys.symbol.target_ceremony'))
+                    .fontSize(24)
+                    .fontColor(['#4CAF50'])
+                  Text('目标追踪')
+                    .fontSize(11)
+                    .fontColor('#757575')
+                }
+                .alignItems(HorizontalAlign.Center)
+
+                Column({ space: 6 }) {
+                  SymbolGlyph($r('sys.symbol.doc_text'))
+                    .fontSize(24)
+                    .fontColor(['#2196F3'])
+                  Text('数据统计')
+                    .fontSize(11)
+                    .fontColor('#757575')
+                }
+                .alignItems(HorizontalAlign.Center)
+              }
+              .width('100%')
+              .justifyContent(FlexAlign.Center)
+              .padding({ top: 20, bottom: 28 })
+              .margin({ left: 40, right: 40 })
+              .backgroundColor('#FAFAFA')
+              .borderRadius(16)
+              .margin({ top: 24 })
+
+              // 操作按钮
+              Button() {
+                Row({ space: 8 }) {
+                  SymbolGlyph($r('sys.symbol.plus'))
+                    .fontSize(18)
+                    .fontColor(['#FFFFFF'])
+                  Text('去记录体重')
+                    .fontSize(15)
+                    .fontColor('#FFFFFF')
+                    .fontWeight(FontWeight.Medium)
+                }
+              }
+              .width(200)
+              .height(44)
+              .backgroundColor('#FF6B6B')
+              .borderRadius(22)
+              .margin({ top: 28 })
+              .shadow({ radius: 8, color: 'rgba(255, 107, 107, 0.3)', offsetY: 4 })
+              .onClick(() => {
+                this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_WEIGHT_DETAIL });
+              })
             }
-            .margin({ top: 80 })
+            .width('100%')
+            .alignItems(HorizontalAlign.Center)
           }
         }
         .width('100%')
@@ -201,6 +307,7 @@ struct WeightStatisticsPage {
       }
       .width('100%')
       .layoutWeight(1)
+      .edgeEffect(EdgeEffect.Spring)
     }
     .width('100%')
     .height('100%')
@@ -217,7 +324,7 @@ function StatItem(label: string, value: string, color: string) {
       .fontColor(color)
     Text(label)
       .fontSize(11)
-      .fontColor('#999999')
+      .fontColor('#757575')
   }
   .layoutWeight(1)
   .padding(12)
@@ -264,12 +371,12 @@ struct WeightChart {
         Column() {
           Text('暂无数据')
             .fontSize(14)
-            .fontColor('#999999')
+            .fontColor('#757575')
             .textAlign(TextAlign.Center)
             .width('100%')
           Text('记录体重后查看趋势')
             .fontSize(12)
-            .fontColor('#CCCCCC')
+            .fontColor('#888888')
             .margin({ top: 4 })
         }
         .width('100%')
@@ -358,7 +465,7 @@ struct WeightChart {
     ctx.lineWidth = 1;
     ctx.strokeStyle = '#E8E8E8';
     ctx.font = '11px sans-serif';
-    ctx.fillStyle = '#999999';
+    ctx.fillStyle = '#757575';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
     const gridCount = 5;
@@ -492,7 +599,7 @@ struct WeightChart {
     }
 
     // 绘制 X 轴日期标签
-    ctx.fillStyle = '#999999';
+    ctx.fillStyle = '#757575';
     ctx.font = '10px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';

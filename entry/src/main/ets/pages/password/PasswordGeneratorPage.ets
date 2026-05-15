@@ -3,6 +3,8 @@ import { CryptoUtil } from '../../common/utils/CryptoUtil';
 import { PasswordGeneratorConfig } from '../../models/PasswordModel';
 import { pasteboard } from '@kit.BasicServicesKit';
 import { ToastUtil } from '../../common/utils/ToastUtil';
+import { preferences } from '@kit.ArkData';
+import { AppConstants } from '../../common/constants/AppConstants';
 
 @Entry
 @Component
@@ -12,7 +14,32 @@ struct PasswordGeneratorPage {
   @State historyList: string[] = [];
 
   aboutToAppear() {
+    this.loadHistory();
     this.generatePassword();
+  }
+
+  loadHistory() {
+    try {
+      const context = this.getUIContext().getHostContext();
+      const pref = preferences.getPreferencesSync(context, { name: 'app_prefs' });
+      const historyStr = pref.getSync(AppConstants.PREF_PASSWORD_HISTORY, '') as string;
+      if (historyStr) {
+        this.historyList = JSON.parse(historyStr) as string[];
+      }
+    } catch (e) {
+      console.error('Load password history error:', JSON.stringify(e));
+    }
+  }
+
+  saveHistory() {
+    try {
+      const context = this.getUIContext().getHostContext();
+      const pref = preferences.getPreferencesSync(context, { name: 'app_prefs' });
+      pref.put(AppConstants.PREF_PASSWORD_HISTORY, JSON.stringify(this.historyList));
+      pref.flush();
+    } catch (e) {
+      console.error('Save password history error:', JSON.stringify(e));
+    }
   }
 
   generatePassword() {
@@ -30,6 +57,7 @@ struct PasswordGeneratorPage {
       if (this.historyList.length > 10) {
         this.historyList = this.historyList.slice(0, 10);
       }
+      this.saveHistory();
     }
   }
 
@@ -39,8 +67,30 @@ struct PasswordGeneratorPage {
       const systemPasteboard = pasteboard.getSystemPasteboard();
       await systemPasteboard.setData(pasteData);
       ToastUtil.show('密码已复制');
+      this.scheduleClipboardClear();
     } catch (e) {
       console.error('Copy to clipboard error:', JSON.stringify(e));
+    }
+  }
+
+  scheduleClipboardClear() {
+    try {
+      const context = this.getUIContext().getHostContext();
+      const pref = preferences.getPreferencesSync(context, { name: 'app_prefs' });
+      const enabled = pref.getSync(AppConstants.PREF_CLIPBOARD_CLEAR, true) as boolean;
+      if (enabled) {
+        setTimeout(() => {
+          try {
+            const pb = pasteboard.getSystemPasteboard();
+            pb.clearData();
+            ToastUtil.show('剪贴板已自动清除');
+          } catch (err) {
+            console.error('Clear clipboard error:', JSON.stringify(err));
+          }
+        }, AppConstants.CLIPBOARD_CLEAR_DELAY * 1000);
+      }
+    } catch (e) {
+      console.error('Schedule clipboard clear error:', JSON.stringify(e));
     }
   }
 
@@ -203,6 +253,7 @@ struct PasswordGeneratorPage {
                   .fontColor('#FF4444')
                   .onClick(() => {
                     this.historyList = [];
+                    this.saveHistory();
                   })
               }
               .width('100%')
@@ -250,6 +301,7 @@ struct PasswordGeneratorPage {
       }
       .width('100%')
       .layoutWeight(1)
+      .edgeEffect(EdgeEffect.Spring)
     }
     .width('100%')
     .height('100%')

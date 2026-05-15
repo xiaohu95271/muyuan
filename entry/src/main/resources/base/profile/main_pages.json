@@ -8,6 +8,8 @@
     "pages/weight/WeightListPage",
     "pages/weight/WeightDetailPage",
     "pages/weight/WeightStatisticsPage",
-    "pages/settings/SettingsPage"
+    "pages/settings/SettingsPage",
+    "pages/notification/NotificationPage",
+    "pages/notification/NotificationDetailPage"
   ]
 }

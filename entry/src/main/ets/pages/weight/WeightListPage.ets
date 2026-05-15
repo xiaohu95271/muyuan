@@ -127,14 +127,14 @@ struct WeightListPage {
         Column({ space: 4 }) {
           Text('最新体重')
             .fontSize(12)
-            .fontColor('#999999')
+            .fontColor('#757575')
           Text(this.latestWeight > 0 ? `${this.latestWeight.toFixed(1)}` : '--')
             .fontSize(28)
             .fontWeight(FontWeight.Bold)
             .fontColor('#333333')
           Text('kg')
             .fontSize(12)
-            .fontColor('#999999')
+            .fontColor('#757575')
         }
         .layoutWeight(1)
         .alignItems(HorizontalAlign.Start)
@@ -142,7 +142,7 @@ struct WeightListPage {
         Column({ space: 4 }) {
           Text('BMI')
             .fontSize(12)
-            .fontColor('#999999')
+            .fontColor('#757575')
           Text(this.latestBmi > 0 ? `${this.latestBmi.toFixed(1)}` : '--')
             .fontSize(28)
             .fontWeight(FontWeight.Bold)
@@ -157,14 +157,14 @@ struct WeightListPage {
         Column({ space: 4 }) {
           Text('目标')
             .fontSize(12)
-            .fontColor('#999999')
+            .fontColor('#757575')
           Text(this.weightGoal.targetWeight > 0 ? `${this.weightGoal.targetWeight.toFixed(1)}` : '--')
             .fontSize(28)
             .fontWeight(FontWeight.Bold)
             .fontColor('#007DFF')
           Text('kg')
             .fontSize(12)
-            .fontColor('#999999')
+            .fontColor('#757575')
         }
         .layoutWeight(1)
         .alignItems(HorizontalAlign.Start)
@@ -185,7 +185,7 @@ struct WeightListPage {
         Column({ space: 16 }) {
           Text('暂无体重记录')
             .fontSize(16)
-            .fontColor('#999999')
+            .fontColor('#757575')
           Button('记录今日体重')
             .type(ButtonType.Capsule)
             .backgroundColor('#FF6B6B')
@@ -271,7 +271,7 @@ struct WeightCard {
   }
 
   getWeightDiffColor(): string {
-    if (this.targetWeight <= 0) return '#999999';
+    if (this.targetWeight <= 0) return '#757575';
     const diff = this.item.weight - this.targetWeight;
     if (Math.abs(diff) < 0.5) return '#4CAF50';
     return diff > 0 ? '#FF9800' : '#2196F3';
@@ -287,7 +287,7 @@ struct WeightCard {
           .fontColor('#FF6B6B')
         Text(`${DateUtil.formatDate(this.item.date).split('-')[0]}-${DateUtil.formatDate(this.item.date).split('-')[1]}`)
           .fontSize(11)
-          .fontColor('#999999')
+          .fontColor('#757575')
       }
       .width(50)
       .alignItems(HorizontalAlign.Center)
@@ -301,7 +301,7 @@ struct WeightCard {
             .fontColor('#333333')
           Text('kg')
             .fontSize(12)
-            .fontColor('#999999')
+            .fontColor('#757575')
 
           if (this.targetWeight > 0) {
             Text(this.getWeightDiff())
@@ -320,14 +320,14 @@ struct WeightCard {
           if (this.item.bodyFatRate > 0) {
             Text(`体脂 ${this.item.bodyFatRate.toFixed(1)}%`)
               .fontSize(12)
-              .fontColor('#999999')
+              .fontColor('#757575')
           }
         }
 
         if (this.item.notes) {
           Text(this.item.notes)
             .fontSize(12)
-            .fontColor('#999999')
+            .fontColor('#757575')
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
         }
@@ -341,7 +341,7 @@ struct WeightCard {
           .width(16)
           .height(16)
           .commands('M5 3 L12 8 L5 13')
-          .stroke('#CCCCCC')
+          .stroke('#888888')
           .strokeWidth(2)
           .fill('none')
       }

@@ -8,15 +8,23 @@ import { ToastUtil } from '../../common/utils/ToastUtil';
 struct AppLockVerifyPage {
   @State pinCode: string = '';
   @State verifyStatus: number = 0; // 0: 待验证 1: 验证中 2: 成功
+  @State isMandatory: boolean = false; // 是否强制验证（应用启动/前台切换）
+  @StorageLink('need_lock_verify') needLockVerify: boolean = false;
 
   aboutToAppear() {
+    // 检查是否是强制验证模式（应用启动/前台切换触发）
+    const params = this.getUIContext().getRouter().getParams() as Record<string, Object>;
+    if (params && params['mandatory'] as boolean) {
+      this.isMandatory = true;
+    }
     // 检查是否设置了 PIN 码
     try {
       const context = this.getUIContext().getHostContext();
       const pref = preferences.getPreferencesSync(context, { name: 'app_prefs' });
       const pin = pref.getSync(AppConstants.PREF_APP_LOCK_PIN, '') as string;
       if (!pin) {
-        // 未设置 PIN 码，直接返回
+        // 未设置 PIN 码，解锁并返回
+        this.needLockVerify = false;
         this.getUIContext().getRouter().back();
       }
     } catch (e) {
@@ -35,8 +43,9 @@ struct AppLockVerifyPage {
       const storedPin = pref.getSync(AppConstants.PREF_APP_LOCK_PIN, '') as string;
       if (this.pinCode === storedPin) {
         this.verifyStatus = 2;
+        // 解锁成功，清除锁定标志
+        this.needLockVerify = false;
         ToastUtil.show('验证成功');
-        // 通知密码列表页验证通过
         this.getUIContext().getRouter().back();
       } else {
         this.verifyStatus = 0;
@@ -53,16 +62,20 @@ struct AppLockVerifyPage {
     Column({ space: 24 }) {
       // 顶部导航栏
       Row() {
-        Button('<')
-          .fontSize(28)
-          .fontColor('#333333')
-          .width(52)
-          .height(52)
-          .type(ButtonType.Circle)
-          .backgroundColor('transparent')
-          .onClick(() => {
-            this.getUIContext().getRouter().back();
-          })
+        if (!this.isMandatory) {
+          Button('<')
+            .fontSize(28)
+            .fontColor('#333333')
+            .width(52)
+            .height(52)
+            .type(ButtonType.Circle)
+            .backgroundColor('transparent')
+            .onClick(() => {
+              this.getUIContext().getRouter().back();
+            })
+        } else {
+          Blank().width(52)
+        }
 
         Text('应用锁验证')
           .fontSize(18)

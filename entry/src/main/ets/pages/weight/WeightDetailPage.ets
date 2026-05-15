@@ -382,7 +382,7 @@ struct WeightDetailPage {
 
                 Text(this.useKg ? 'kg' : '斤')
                   .fontSize(16)
-                  .fontColor('#999999')
+                  .fontColor('#757575')
                   .margin({ left: 8 })
               }
               .width('100%')
@@ -394,7 +394,7 @@ struct WeightDetailPage {
                 .fontSize(20)
                 .fontWeight(FontWeight.Medium)
                 .fontColor('#333333')
-                .placeholderColor('#999999')
+                .placeholderColor('#757575')
                 .textAlign(TextAlign.Center)
                 .width('100%')
                 .height(48)
@@ -443,7 +443,7 @@ struct WeightDetailPage {
               Column({ space: 8 }) {
                 Text('测量日期')
                   .fontSize(13)
-                  .fontColor('#999999')
+                  .fontColor('#757575')
                 Text(this.formatDisplayDate())
                   .fontSize(16)
                   .fontColor('#333333')
@@ -462,7 +462,7 @@ struct WeightDetailPage {
               Column({ space: 8 }) {
                 Text('测量时间')
                   .fontSize(13)
-                  .fontColor('#999999')
+                  .fontColor('#757575')
                 Text(this.formatDisplayTime())
                   .fontSize(16)
                   .fontColor('#333333')
@@ -492,7 +492,7 @@ struct WeightDetailPage {
                 .type(InputType.Normal)
                 .height(48)
                 .fontColor('#333333')
-                .placeholderColor('#999999')
+                .placeholderColor('#757575')
                 .backgroundColor('#F5F5F5')
                 .borderRadius(8)
                 .padding({ left: 16 })
@@ -525,7 +525,7 @@ struct WeightDetailPage {
               TextInput({ placeholder: '例如 晨起空腹', text: $$this.notes })
                 .height(48)
                 .fontColor('#333333')
-                .placeholderColor('#999999')
+                .placeholderColor('#757575')
                 .backgroundColor('#F5F5F5')
                 .borderRadius(8)
                 .padding({ left: 16 })
@@ -544,7 +544,7 @@ struct WeightDetailPage {
                   .fontColor(DateUtil.getBMIColor(this.bmiPreview))
                 Text(DateUtil.getBMICategory(this.bmiPreview))
                   .fontSize(14)
-                  .fontColor('#999999')
+                  .fontColor('#757575')
                   .margin({ left: 8 })
               }
               .width('100%')
@@ -564,7 +564,7 @@ struct WeightDetailPage {
                   .type(InputType.Number)
                   .height(48)
                   .fontColor('#333333')
-                  .placeholderColor('#999999')
+                  .placeholderColor('#757575')
                   .backgroundColor('#F5F5F5')
                   .borderRadius(8)
                   .padding({ left: 16 })
@@ -607,7 +607,7 @@ struct WeightDetailPage {
                     .fontColor('#333333')
                   Text('用于计算 BMI')
                     .fontSize(12)
-                    .fontColor('#999999')
+                    .fontColor('#757575')
                 }
                 .alignItems(HorizontalAlign.Start)
                 .layoutWeight(1)
@@ -631,6 +631,7 @@ struct WeightDetailPage {
         }
         .width('100%')
         .layoutWeight(1)
+        .edgeEffect(EdgeEffect.Spring)
       }
       .width('100%')
       .height('100%')

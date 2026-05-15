@@ -29,6 +29,14 @@ export class AppConstants {
   static readonly PAGE_WEIGHT_STATISTICS: string = 'pages/weight/WeightStatisticsPage';
   static readonly PAGE_SETTINGS: string = 'pages/settings/SettingsPage';
   static readonly PAGE_APP_LOCK_VERIFY: string = 'pages/password/AppLockVerifyPage';
+  static readonly PAGE_NOTIFICATION: string = 'pages/notification/NotificationPage';
+  static readonly PAGE_NOTIFICATION_DETAIL: string = 'pages/notification/NotificationDetailPage';
+
+  // 消息通知相关Key
+  static readonly PREF_NOTIFICATION_READ: string = 'notification_read_ids';
+
+  // 密码生成器历史记录Key
+  static readonly PREF_PASSWORD_HISTORY: string = 'password_generator_history';
 }
 
 /**

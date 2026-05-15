@@ -175,7 +175,7 @@ struct PasswordDetailPage {
       case 1: return '#FF9800';
       case 2: return '#4CAF50';
       case 3: return '#2196F3';
-      default: return '#999999';
+      default: return '#757575';
     }
   }
 
@@ -259,7 +259,7 @@ struct PasswordDetailPage {
             TextInput({ placeholder: '如：微信、GitHub', text: $$this.platform })
               .height(48)
               .fontColor('#333333')
-              .placeholderColor('#999999')
+              .placeholderColor('#757575')
               .backgroundColor('#F5F5F5')
               .borderRadius(8)
           }
@@ -269,7 +269,7 @@ struct PasswordDetailPage {
             TextInput({ placeholder: '用户名/手机号/邮箱', text: $$this.account })
               .height(48)
               .fontColor('#333333')
-              .placeholderColor('#999999')
+              .placeholderColor('#757575')
               .backgroundColor('#F5F5F5')
               .borderRadius(8)
           }
@@ -281,7 +281,7 @@ struct PasswordDetailPage {
                 .type(InputType.Password)
                 .height(48)
                 .fontColor('#333333')
-                .placeholderColor('#999999')
+                .placeholderColor('#757575')
                 .backgroundColor('#F5F5F5')
                 .borderRadius(8)
                 .layoutWeight(1)
@@ -389,7 +389,7 @@ struct PasswordDetailPage {
             TextInput({ placeholder: 'https://...', text: $$this.website })
               .height(48)
               .fontColor('#333333')
-              .placeholderColor('#999999')
+              .placeholderColor('#757575')
               .backgroundColor('#F5F5F5')
               .borderRadius(8)
           }
@@ -399,7 +399,7 @@ struct PasswordDetailPage {
             TextInput({ placeholder: '多个标签用逗号分隔', text: $$this.tags })
               .height(48)
               .fontColor('#333333')
-              .placeholderColor('#999999')
+              .placeholderColor('#757575')
               .backgroundColor('#F5F5F5')
               .borderRadius(8)
           }
@@ -409,7 +409,7 @@ struct PasswordDetailPage {
             TextArea({ placeholder: '额外信息...', text: $$this.notes })
               .height(100)
               .fontColor('#333333')
-              .placeholderColor('#999999')
+              .placeholderColor('#757575')
               .backgroundColor('#F5F5F5')
               .borderRadius(8)
           }
@@ -419,6 +419,7 @@ struct PasswordDetailPage {
       }
       .width('100%')
       .layoutWeight(1)
+      .edgeEffect(EdgeEffect.Spring)
     }
     .width('100%')
     .height('100%')

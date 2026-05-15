@@ -100,7 +100,7 @@ export class DateUtil {
    * 获取 BMI 对应颜色
    */
   static getBMIColor(bmi: number): string {
-    if (bmi <= 0) return '#999999';
+    if (bmi <= 0) return '#757575';
     if (bmi < 18.5) return '#FFA500';
     if (bmi < 24) return '#4CAF50';
     if (bmi < 28) return '#FF9800';

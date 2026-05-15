@@ -14,14 +14,45 @@ import { pasteboard } from '@kit.BasicServicesKit';
 @Component
 struct Index {
   @State currentIndex: number = 0;
+  @StorageLink('need_lock_verify') @Watch('onLockStateChange') needLockVerify: boolean = false;
   private tabsController: TabsController = new TabsController();
+  private isNavigatingToLock: boolean = false;
 
   onPageShow() {
     AppStorage.setOrCreate('home_refresh_trigger', Date.now());
+    // 页面显示时检查是否需要验证应用锁
+    if (this.needLockVerify) {
+      this.navigateToLockVerify();
+    }
   }
 
   aboutToAppear() {
     // 数据库已在 EntryAbility.onCreate 中初始化
+    // 启动时检查是否需要应用锁验证
+    if (this.needLockVerify) {
+      this.navigateToLockVerify();
+    }
+  }
+
+  onLockStateChange() {
+    if (this.needLockVerify) {
+      this.navigateToLockVerify();
+    } else {
+      // 验证成功后重置导航标志
+      this.isNavigatingToLock = false;
+    }
+  }
+
+  navigateToLockVerify() {
+    // 防止重复导航
+    if (this.isNavigatingToLock) {
+      return;
+    }
+    this.isNavigatingToLock = true;
+    this.getUIContext().getRouter().pushUrl({
+      url: AppConstants.PAGE_APP_LOCK_VERIFY,
+      params: { mandatory: true }
+    });
   }
 
   @Builder
@@ -30,23 +61,23 @@ struct Index {
       if (index === 0) {
         SymbolGlyph($r('sys.symbol.house'))
           .fontSize(36)
-          .fontColor([this.currentIndex === index ? '#007DFF' : '#999999'])
+          .fontColor([this.currentIndex === index ? '#007DFF' : '#757575'])
       } else if (index === 1) {
         SymbolGlyph($r('sys.symbol.lock'))
           .fontSize(36)
-          .fontColor([this.currentIndex === index ? '#007DFF' : '#999999'])
+          .fontColor([this.currentIndex === index ? '#007DFF' : '#757575'])
       } else if (index === 2) {
         SymbolGlyph($r('sys.symbol.heart'))
           .fontSize(36)
-          .fontColor([this.currentIndex === index ? '#007DFF' : '#999999'])
+          .fontColor([this.currentIndex === index ? '#007DFF' : '#757575'])
       } else {
         SymbolGlyph($r('sys.symbol.gearshape'))
           .fontSize(36)
-          .fontColor([this.currentIndex === index ? '#007DFF' : '#999999'])
+          .fontColor([this.currentIndex === index ? '#007DFF' : '#757575'])
       }
       Text(title)
         .fontSize(16)
-        .fontColor(this.currentIndex === index ? '#007DFF' : '#999999')
+        .fontColor(this.currentIndex === index ? '#007DFF' : '#757575')
         .margin({ top: 4 })
     }
     .width('100%')
@@ -108,6 +139,7 @@ struct HomeContent {
   @State weightRecordCount: number = 0;
   @State recentPasswords: PasswordModel[] = [];
   @State greeting: string = '';
+  @State hasUnreadNotification: boolean = true;
   @StorageLink('home_refresh_trigger') @Watch('onRefreshTriggerChange') refreshTrigger: number = 0;
   private weightEventId: number = -1;
   private passwordEventId: number = -1;
@@ -132,6 +164,9 @@ struct HomeContent {
 
   async loadHomeData() {
     try {
+      // 检查未读消息
+      this.checkUnreadNotifications();
+
       // 问候语
       const hour = new Date().getHours();
       if (hour < 6) this.greeting = '夜深了，注意休息';
@@ -194,6 +229,23 @@ struct HomeContent {
     }
   }
 
+  checkUnreadNotifications() {
+    try {
+      const context = this.getUIContext().getHostContext();
+      const pref = preferences.getPreferencesSync(context, { name: 'app_prefs' });
+      const readIdsStr = pref.getSync(AppConstants.PREF_NOTIFICATION_READ, '') as string;
+      let readIds: number[] = [];
+      if (readIdsStr) {
+        readIds = JSON.parse(readIdsStr) as number[];
+      }
+      // 当前所有消息ID列表
+      const allNotificationIds: number[] = [1];
+      this.hasUnreadNotification = allNotificationIds.some(id => !readIds.includes(id));
+    } catch (e) {
+      this.hasUnreadNotification = true;
+    }
+  }
+
   build() {
     Scroll() {
       Column({ space: 16 }) {
@@ -206,7 +258,7 @@ struct HomeContent {
               .fontColor('#333333')
             Text(this.getTodayDateStr())
               .fontSize(13)
-              .fontColor('#999999')
+              .fontColor('#757575')
           }
           .alignItems(HorizontalAlign.Start)
           .layoutWeight(1)
@@ -222,14 +274,19 @@ struct HomeContent {
             .justifyContent(FlexAlign.Center)
             .alignItems(HorizontalAlign.Center)
 
-            Circle()
-              .width(8)
-              .height(8)
-              .fill('#FF3B30')
-              .position({ top: 8, right: 8 })
+            if (this.hasUnreadNotification) {
+              Circle()
+                .width(8)
+                .height(8)
+                .fill('#FF3B30')
+                .position({ top: 8, right: 8 })
+            }
           }
           .width(40)
           .height(40)
+          .onClick(() => {
+            this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_NOTIFICATION });
+          })
         }
         .width('100%')
         .padding({ left: 20, right: 20, top: 20 })
@@ -260,7 +317,7 @@ struct HomeContent {
               .fontColor('#333333')
             Text('守护账户安全')
               .fontSize(10)
-              .fontColor('#999999')
+              .fontColor('#757575')
           }
           .layoutWeight(1)
           .padding({ top: 14, bottom: 14, left: 12, right: 12 })
@@ -292,7 +349,7 @@ struct HomeContent {
               .fontColor('#333333')
             Text('记录健康每一天')
               .fontSize(10)
-              .fontColor('#999999')
+              .fontColor('#757575')
           }
           .layoutWeight(1)
           .padding({ top: 14, bottom: 14, left: 12, right: 12 })
@@ -304,13 +361,13 @@ struct HomeContent {
             Text(this.latestBmi > 0 ? `${this.latestBmi.toFixed(1)}` : '--')
               .fontSize(24)
               .fontWeight(FontWeight.Bold)
-              .fontColor(this.latestBmi > 0 ? DateUtil.getBMIColor(this.latestBmi) : '#999999')
+              .fontColor(this.latestBmi > 0 ? DateUtil.getBMIColor(this.latestBmi) : '#757575')
             Text('BMI')
               .fontSize(12)
               .fontColor('#333333')
             Text('健康指数')
               .fontSize(10)
-              .fontColor('#999999')
+              .fontColor('#757575')
           }
           .layoutWeight(1)
           .padding({ top: 14, bottom: 14 })
@@ -411,7 +468,7 @@ struct HomeContent {
         //             .fontColor('#333333')
         //           Text(item.account)
         //             .fontSize(12)
-        //             .fontColor('#999999')
+        //             .fontColor('#757575')
         //         }
         //         .alignItems(HorizontalAlign.Start)
         //         .layoutWeight(1)
@@ -551,7 +608,7 @@ struct HomeContent {
 
           Text('>')
             .fontSize(18)
-            .fontColor('#CCCCCC')
+            .fontColor('#888888')
         }
         .width('100%')
         .padding({ left: 16, right: 16, top: 14, bottom: 14 })
@@ -565,6 +622,7 @@ struct HomeContent {
     .width('100%')
     .height('100%')
     .align(Alignment.TopStart)
+    .edgeEffect(EdgeEffect.Spring)
   }
 
   getTodayDateStr(): string {
@@ -620,7 +678,7 @@ function QuickActionCard(icon: Resource, text: string, subtitle: string, color: 
           .fontColor(color)
         Text(subtitle)
           .fontSize(10)
-          .fontColor('#999999')
+          .fontColor('#757575')
       }
       .alignItems(HorizontalAlign.Start)
     }
@@ -682,12 +740,34 @@ struct PasswordEntry {
         const systemPasteboard = pasteboard.getSystemPasteboard();
         await systemPasteboard.setData(pasteData);
         ToastUtil.show('密码已复制到剪贴板');
+        this.scheduleClipboardClear();
       } else {
         ToastUtil.show('密码解密失败');
       }
     } catch (e) {
       console.error('Copy password error:', JSON.stringify(e));
       ToastUtil.show('复制失败');
+    }
+  }
+
+  scheduleClipboardClear() {
+    try {
+      const context = this.getUIContext().getHostContext();
+      const pref = preferences.getPreferencesSync(context, { name: 'app_prefs' });
+      const enabled = pref.getSync(AppConstants.PREF_CLIPBOARD_CLEAR, true) as boolean;
+      if (enabled) {
+        setTimeout(() => {
+          try {
+            const pb = pasteboard.getSystemPasteboard();
+            pb.clearData();
+            ToastUtil.show('剪贴板已自动清除');
+          } catch (err) {
+            console.error('Clear clipboard error:', JSON.stringify(err));
+          }
+        }, AppConstants.CLIPBOARD_CLEAR_DELAY * 1000);
+      }
+    } catch (e) {
+      console.error('Schedule clipboard clear error:', JSON.stringify(e));
     }
   }
 
@@ -773,10 +853,10 @@ struct PasswordEntry {
         Column({ space: 12 }) {
           Text('暂无密码记录')
             .fontSize(16)
-            .fontColor('#999999')
+            .fontColor('#757575')
           Text('点击右上角 + 添加第一条记录')
             .fontSize(13)
-            .fontColor('#CCCCCC')
+            .fontColor('#888888')
         }
         .width('100%').layoutWeight(1).justifyContent(FlexAlign.Center)
       } else {
@@ -803,7 +883,7 @@ struct PasswordEntry {
                     .fontColor('#333333')
                   Text(item.account)
                     .fontSize(12)
-                    .fontColor('#999999')
+                    .fontColor('#757575')
                 }
                 .alignItems(HorizontalAlign.Start)
                 .layoutWeight(1)
@@ -941,14 +1021,14 @@ struct WeightEntry {
         Column({ space: 4 }) {
           Text('最新体重')
             .fontSize(11)
-            .fontColor('#999999')
+            .fontColor('#757575')
           Text(this.latestWeight > 0 ? `${this.latestWeight.toFixed(1)}` : '--')
             .fontSize(26)
             .fontWeight(FontWeight.Bold)
             .fontColor('#333333')
           Text('kg')
             .fontSize(11)
-            .fontColor('#999999')
+            .fontColor('#757575')
         }
         .layoutWeight(1)
         .alignItems(HorizontalAlign.Center)
@@ -959,7 +1039,7 @@ struct WeightEntry {
         Column({ space: 4 }) {
           Text('BMI')
             .fontSize(11)
-            .fontColor('#999999')
+            .fontColor('#757575')
           Text(this.latestBmi > 0 ? `${this.latestBmi.toFixed(1)}` : '--')
             .fontSize(26)
             .fontWeight(FontWeight.Bold)
@@ -977,14 +1057,14 @@ struct WeightEntry {
         Column({ space: 4 }) {
           Text('目标')
             .fontSize(11)
-            .fontColor('#999999')
+            .fontColor('#757575')
           Text(this.weightGoal.targetWeight > 0 ? `${this.weightGoal.targetWeight.toFixed(1)}` : '--')
             .fontSize(26)
             .fontWeight(FontWeight.Bold)
             .fontColor('#007DFF')
           Text('kg')
             .fontSize(11)
-            .fontColor('#999999')
+            .fontColor('#757575')
         }
         .layoutWeight(1)
         .alignItems(HorizontalAlign.Center)
@@ -1000,10 +1080,10 @@ struct WeightEntry {
         Column({ space: 12 }) {
           Text('暂无体重记录')
             .fontSize(16)
-            .fontColor('#999999')
+            .fontColor('#757575')
           Text('点击右上角 + 记录今日体重')
             .fontSize(13)
-            .fontColor('#CCCCCC')
+            .fontColor('#888888')
         }
         .width('100%').layoutWeight(1).justifyContent(FlexAlign.Center)
       } else {
@@ -1027,7 +1107,7 @@ struct WeightEntry {
                       .fontColor('#FF6B6B')
                     Text(`${DateUtil.formatDate(item.date).split('-')[1]}月`)
                       .fontSize(10)
-                      .fontColor('#999999')
+                      .fontColor('#757575')
                   }
                   .width(44)
                   .alignItems(HorizontalAlign.Center)
@@ -1045,7 +1125,7 @@ struct WeightEntry {
                       if (item.bodyFatRate > 0) {
                         Text(`体脂 ${item.bodyFatRate.toFixed(1)}%`)
                           .fontSize(11)
-                          .fontColor('#999999')
+                          .fontColor('#757575')
                       }
                     }
                   }
@@ -1096,6 +1176,8 @@ struct SettingsEntry {
   @State clipboardClearEnabled: boolean = true;
   @State passwordCount: number = 0;
   @State weightCount: number = 0;
+  @State autoLockTimeout: number = AppConstants.DEFAULT_AUTO_LOCK_MINUTES;
+  @State appLockPin: string = '';
 
   aboutToAppear() {
     this.loadSettings();
@@ -1107,6 +1189,8 @@ struct SettingsEntry {
       const pref = preferences.getPreferencesSync(context, { name: 'app_prefs' });
       this.appLockEnabled = pref.getSync(AppConstants.PREF_APP_LOCK_ENABLED, false) as boolean;
       this.clipboardClearEnabled = pref.getSync(AppConstants.PREF_CLIPBOARD_CLEAR, true) as boolean;
+      this.autoLockTimeout = pref.getSync(AppConstants.PREF_AUTO_LOCK_TIMEOUT, AppConstants.DEFAULT_AUTO_LOCK_MINUTES) as number;
+      // appLockPin 默认为空，不加载已存储的值
       const passwords = await DatabaseManager.getInstance().queryAllPasswords();
       this.passwordCount = passwords.length;
       const weights = await DatabaseManager.getInstance().queryAllWeights();
@@ -1195,7 +1279,7 @@ struct SettingsEntry {
                 .fontColor('#666666')
               Text('安全存储账号密码')
                 .fontSize(10)
-                .fontColor('#999999')
+                .fontColor('#757575')
             }
             .layoutWeight(1)
             .padding({ top: 16, bottom: 16 })
@@ -1225,7 +1309,7 @@ struct SettingsEntry {
                 .fontColor('#666666')
               Text('记录健康每一天')
                 .fontSize(10)
-                .fontColor('#999999')
+                .fontColor('#757575')
             }
             .layoutWeight(1)
             .padding({ top: 16, bottom: 16 })
@@ -1240,7 +1324,7 @@ struct SettingsEntry {
           Column({ space: 0 }) {
             Text('安全')
               .fontSize(13)
-              .fontColor('#999999')
+              .fontColor('#757575')
               .alignSelf(ItemAlign.Start)
               .margin({ bottom: 8 })
 
@@ -1264,7 +1348,7 @@ struct SettingsEntry {
                   .fontColor('#333333')
                 Text('开启后进入应用需要验证')
                   .fontSize(11)
-                  .fontColor('#999999')
+                  .fontColor('#757575')
               }
               .alignItems(HorizontalAlign.Start)
               .layoutWeight(1)
@@ -1281,6 +1365,14 @@ struct SettingsEntry {
                     const pref = preferences.getPreferencesSync(context, { name: 'app_prefs' });
                     pref.put(AppConstants.PREF_APP_LOCK_ENABLED, isOn);
                     pref.flush();
+                    if (isOn) {
+                      // 开启时引导用户去设置 PIN 码
+                      const pin = pref.getSync(AppConstants.PREF_APP_LOCK_PIN, '') as string;
+                      if (!pin) {
+                        ToastUtil.show('请前往全部设置中设置 PIN 密码');
+                        this.getUIContext().getRouter().pushUrl({ url: AppConstants.PAGE_SETTINGS });
+                      }
+                    }
                   } catch (e) {
                     console.error('Toggle lock error:', JSON.stringify(e));
                   }
@@ -1289,6 +1381,78 @@ struct SettingsEntry {
             .width('100%')
             .height(64)
             .alignItems(VerticalAlign.Center)
+
+            if (this.appLockEnabled) {
+              Divider().color('#F0F0F0').margin({ left: 48 })
+
+              // 应用锁密码
+              Row() {
+                Column({ space: 2 }) {
+                  Text('应用锁密码')
+                    .fontSize(15)
+                    .fontColor('#333333')
+                }
+                .alignItems(HorizontalAlign.Start)
+                .layoutWeight(1)
+
+                TextInput({ placeholder: '4-6位数字密码', text: this.appLockPin })
+                  .type(InputType.Password)
+                  .width(130)
+                  .height(36)
+                  .fontColor('#333333')
+                  .placeholderColor('#757575')
+                  .backgroundColor('#F5F5F5')
+                  .borderRadius(8)
+                  .maxLength(6)
+                  .onChange((value: string) => {
+                    this.appLockPin = value;
+                  })
+
+                Button('确认')
+                  .fontSize(14)
+                  .fontColor('#FFFFFF')
+                  .backgroundColor('#007DFF')
+                  .height(36)
+                  .borderRadius(8)
+                  .margin({ left: 8 })
+                  .onClick(() => {
+                    if (this.appLockPin.length >= 4) {
+                      try {
+                        const context = this.getUIContext().getHostContext();
+                        const pref = preferences.getPreferencesSync(context, { name: 'app_prefs' });
+                        pref.put(AppConstants.PREF_APP_LOCK_PIN, this.appLockPin);
+                        pref.flush();
+                        ToastUtil.show('PIN 码已保存');
+                      } catch (e) {
+                        console.error('Save pin error:', JSON.stringify(e));
+                      }
+                    } else {
+                      ToastUtil.show('请输入4-6位数字密码');
+                    }
+                  })
+              }
+              .width('100%')
+              .height(52)
+              .padding({ left: 48, right: 0 })
+              .alignItems(VerticalAlign.Center)
+
+              Divider().color('#F0F0F0').margin({ left: 48 })
+
+              // 自动锁定时间
+              Row() {
+                Text('自动锁定时间')
+                  .fontSize(15)
+                  .fontColor('#333333')
+                  .layoutWeight(1)
+                Text(`${this.autoLockTimeout} 分钟`)
+                  .fontSize(14)
+                  .fontColor('#757575')
+              }
+              .width('100%')
+              .height(52)
+              .padding({ left: 48, right: 0 })
+              .alignItems(VerticalAlign.Center)
+            }
 
             Divider().color('#F0F0F0').margin({ left: 48 })
 
@@ -1312,7 +1476,7 @@ struct SettingsEntry {
                   .fontColor('#333333')
                 Text('自动清除剪贴板内容')
                   .fontSize(11)
-                  .fontColor('#999999')
+                  .fontColor('#757575')
               }
               .alignItems(HorizontalAlign.Start)
               .layoutWeight(1)
@@ -1348,7 +1512,7 @@ struct SettingsEntry {
           Column({ space: 0 }) {
             Text('更多')
               .fontSize(13)
-              .fontColor('#999999')
+              .fontColor('#757575')
               .alignSelf(ItemAlign.Start)
               .margin({ bottom: 8 })
 
@@ -1372,14 +1536,14 @@ struct SettingsEntry {
                   .fontColor('#333333')
                 Text('生成高强度随机密码')
                   .fontSize(11)
-                  .fontColor('#999999')
+                  .fontColor('#757575')
               }
               .alignItems(HorizontalAlign.Start)
               .layoutWeight(1)
 
               Text('>')
                 .fontSize(18)
-                .fontColor('#CCCCCC')
+                .fontColor('#888888')
             }
             .width('100%')
             .height(64)
@@ -1410,14 +1574,14 @@ struct SettingsEntry {
                   .fontColor('#333333')
                 Text('管理应用其他设置')
                   .fontSize(11)
-                  .fontColor('#999999')
+                  .fontColor('#757575')
               }
               .alignItems(HorizontalAlign.Start)
               .layoutWeight(1)
 
               Text('>')
                 .fontSize(18)
-                .fontColor('#CCCCCC')
+                .fontColor('#888888')
             }
             .width('100%')
             .height(64)
@@ -1437,6 +1601,7 @@ struct SettingsEntry {
       }
       .width('100%')
       .layoutWeight(1)
+      .edgeEffect(EdgeEffect.Spring)
     }
     .width('100%')
     .height('100%')

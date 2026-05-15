@@ -14,6 +14,7 @@ struct SettingsPage {
   @State appLockEnabled: boolean = false;
   @State autoLockTimeout: number = AppConstants.DEFAULT_AUTO_LOCK_MINUTES;
   @State clipboardClearEnabled: boolean = true;
+  @State appLockPin: string = '';
 
   aboutToAppear() {
     this.loadSettings();
@@ -108,7 +109,7 @@ struct SettingsPage {
         buttons: [
           {
             text: '取消',
-            color: '#999999'
+            color: '#757575'
           },
           {
             text: '确定',
@@ -133,7 +134,7 @@ struct SettingsPage {
         buttons: [
           {
             text: '取消',
-            color: '#999999'
+            color: '#757575'
           },
           {
             text: '确定',
@@ -232,7 +233,7 @@ struct SettingsPage {
                     .fontColor('#333333')
                   Text('开启后进入应用需要验证')
                     .fontSize(11)
-                    .fontColor('#999999')
+                    .fontColor('#757575')
                 }
                 .alignItems(HorizontalAlign.Start)
                 .layoutWeight(1)
@@ -264,18 +265,31 @@ struct SettingsPage {
                   .alignItems(HorizontalAlign.Start)
                   .layoutWeight(1)
 
-                  TextInput({ placeholder: '4-6位数字密码', text: '' })
-                    .type(InputType.Number)
+                  TextInput({ placeholder: '4-6位数字密码', text: this.appLockPin })
+                    .type(InputType.Password)
                     .width(130)
                     .height(36)
                     .fontColor('#333333')
-                    .placeholderColor('#999999')
+                    .placeholderColor('#757575')
                     .backgroundColor('#F5F5F5')
                     .borderRadius(8)
                     .maxLength(6)
-                    .onChange((value) => {
-                      if (value.length >= 4) {
-                        this.saveAppLockPin(value);
+                    .onChange((value: string) => {
+                      this.appLockPin = value;
+                    })
+
+                  Button('确认')
+                    .fontSize(14)
+                    .fontColor('#FFFFFF')
+                    .backgroundColor('#007DFF')
+                    .height(36)
+                    .borderRadius(8)
+                    .margin({ left: 8 })
+                    .onClick(() => {
+                      if (this.appLockPin.length >= 4) {
+                        this.saveAppLockPin(this.appLockPin);
+                      } else {
+                        ToastUtil.show('请输入4-6位数字密码');
                       }
                     })
                 }
@@ -293,7 +307,7 @@ struct SettingsPage {
                     .layoutWeight(1)
                   Text(`${this.autoLockTimeout} 分钟`)
                     .fontSize(14)
-                    .fontColor('#999999')
+                    .fontColor('#757575')
                 }
                 .width('100%')
                 .height(52)
@@ -324,7 +338,7 @@ struct SettingsPage {
                     .fontColor('#333333')
                   Text('自动清除剪贴板内容')
                     .fontSize(11)
-                    .fontColor('#999999')
+                    .fontColor('#757575')
                 }
                 .alignItems(HorizontalAlign.Start)
                 .layoutWeight(1)
@@ -387,7 +401,7 @@ struct SettingsPage {
                     .fontColor('#333333')
                   Text('设置你的目标体重')
                     .fontSize(11)
-                    .fontColor('#999999')
+                    .fontColor('#757575')
                 }
                 .alignItems(HorizontalAlign.Start)
                 .layoutWeight(1)
@@ -400,7 +414,7 @@ struct SettingsPage {
                     .fontColor('#333333')
                     .fontSize(15)
                     .textAlign(TextAlign.Center)
-                    .placeholderColor('#CCCCCC')
+                    .placeholderColor('#888888')
                     .backgroundColor('#F5F5F5')
                     .borderRadius(8)
                     .onChange((value) => {
@@ -413,7 +427,7 @@ struct SettingsPage {
                     })
                   Text('kg')
                     .fontSize(13)
-                    .fontColor('#999999')
+                    .fontColor('#757575')
                 }
               }
               .width('100%')
@@ -444,7 +458,7 @@ struct SettingsPage {
                     .fontColor('#333333')
                   Text('设置你的身高')
                     .fontSize(11)
-                    .fontColor('#999999')
+                    .fontColor('#757575')
                 }
                 .alignItems(HorizontalAlign.Start)
                 .layoutWeight(1)
@@ -457,7 +471,7 @@ struct SettingsPage {
                     .fontColor('#333333')
                     .fontSize(15)
                     .textAlign(TextAlign.Center)
-                    .placeholderColor('#CCCCCC')
+                    .placeholderColor('#888888')
                     .backgroundColor('#F5F5F5')
                     .borderRadius(8)
                     .onChange((value) => {
@@ -470,7 +484,7 @@ struct SettingsPage {
                     })
                   Text('cm')
                     .fontSize(13)
-                    .fontColor('#999999')
+                    .fontColor('#757575')
                 }
               }
               .width('100%')
@@ -521,14 +535,14 @@ struct SettingsPage {
                     .fontColor('#333333')
                   Text('删除所有密码记录')
                     .fontSize(11)
-                    .fontColor('#999999')
+                    .fontColor('#757575')
                 }
                 .alignItems(HorizontalAlign.Start)
                 .layoutWeight(1)
 
                 Text('>')
                   .fontSize(18)
-                  .fontColor('#CCCCCC')
+                  .fontColor('#888888')
               }
               .width('100%')
               .height(64)
@@ -561,14 +575,14 @@ struct SettingsPage {
                     .fontColor('#333333')
                   Text('删除所有体重记录')
                     .fontSize(11)
-                    .fontColor('#999999')
+                    .fontColor('#757575')
                 }
                 .alignItems(HorizontalAlign.Start)
                 .layoutWeight(1)
 
                 Text('>')
                   .fontSize(18)
-                  .fontColor('#CCCCCC')
+                  .fontColor('#888888')
               }
               .width('100%')
               .height(64)
@@ -601,14 +615,14 @@ struct SettingsPage {
                     .fontColor('#333333')
                   Text('将数据导出为文件')
                     .fontSize(11)
-                    .fontColor('#999999')
+                    .fontColor('#757575')
                 }
                 .alignItems(HorizontalAlign.Start)
                 .layoutWeight(1)
 
                 Text('>')
                   .fontSize(18)
-                  .fontColor('#CCCCCC')
+                  .fontColor('#888888')
               }
               .width('100%')
               .height(64)
@@ -661,7 +675,7 @@ struct SettingsPage {
 
                 Text('1.0.0')
                   .fontSize(14)
-                  .fontColor('#999999')
+                  .fontColor('#757575')
               }
               .width('100%')
               .height(56)
@@ -711,6 +725,7 @@ struct SettingsPage {
       }
       .width('100%')
       .layoutWeight(1)
+      .edgeEffect(EdgeEffect.Spring)
     }
     .width('100%')
     .height('100%')

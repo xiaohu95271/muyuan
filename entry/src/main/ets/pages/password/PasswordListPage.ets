@@ -216,7 +216,7 @@ struct PasswordListPage {
           Column({ space: 16 }) {
             Text('暂无密码记录')
               .fontSize(16)
-              .fontColor('#999999')
+              .fontColor('#757575')
             Button('添加第一条记录')
               .type(ButtonType.Capsule)
               .backgroundColor('#007DFF')
@@ -239,12 +239,12 @@ struct PasswordListPage {
                       .fontColor('#333333')
                     Text(`${this.getPasswordsForCategory(cat).length}`)
                       .fontSize(12)
-                      .fontColor('#999999')
+                      .fontColor('#757575')
                       .margin({ left: 8 })
                     Blank()
                     Text(this.collapsedCategories.has(cat) ? '▶' : '▼')
                       .fontSize(12)
-                      .fontColor('#999999')
+                      .fontColor('#757575')
                   }
                   .width('100%')
                   .padding({ left: 16, right: 16, top: 10, bottom: 10 })
@@ -419,7 +419,7 @@ struct PasswordCard {
               .fontColor('#333333')
             Text(this.item.account)
               .fontSize(13)
-              .fontColor('#999999')
+              .fontColor('#757575')
           }
           .alignItems(HorizontalAlign.Start)
         }
