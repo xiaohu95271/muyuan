@@ -174,8 +174,9 @@ struct PasswordListPage {
         Row({ space: 12 }) {
           Search({ value: this.searchKeyword, placeholder: '搜索平台、账号或标签...' })
             .layoutWeight(1)
+            .fontColor('#333333')
             .height(44)
-            .backgroundColor('#F5F5F5')
+            .backgroundColor('#9E9E9E')
             .borderRadius(22)
             .onChange((value: string) => {
               this.searchKeyword = value;
